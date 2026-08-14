@@ -202,7 +202,7 @@ export default function AiItineraryPage({ date, profile, preferences, trip, plac
 
       {companionCode && (
         <div className="companion-code-card">
-          <span className="companion-code-label muted small">Share with your companion</span>
+          <span className="companion-code-label muted small">Companion Code</span>
           <span className="companion-code-value">{companionCode}</span>
           <button className="btn btn-ghost small" onClick={() => navigator.clipboard.writeText(companionCode)}>
             Copy code

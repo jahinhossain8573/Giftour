@@ -214,7 +214,7 @@ export default function App() {
             {' '}
             {state.feedbackLog.length > 0 && `Adjusted from ${state.feedbackLog.length} day${state.feedbackLog.length === 1 ? '' : 's'} of feedback.`}
             {state.companionCode && (
-              <span> · Code: {state.companionCode}</span>
+              <span> · Companion Code: {state.companionCode}</span>
             )}
           </p>
         </div>

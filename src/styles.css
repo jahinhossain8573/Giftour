@@ -58,6 +58,9 @@ body {
 }
 
 .sidebar { position: sticky; top: 24px; }
+@media (max-width: 880px) {
+  .sidebar { position: static; }
+}
 .content { display: grid; gap: 20px; }
 
 /* Buttons */
