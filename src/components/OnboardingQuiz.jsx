@@ -11,11 +11,6 @@ const STEPS = [
   { id: 'crowds', title: 'Crowds', body: 'How do you feel about crowded places?', kind: 'scale', axis: 'crowds' },
   { id: 'light', title: 'Light', body: 'How do you feel about bright or flickering lights?', kind: 'scale', axis: 'light' },
   { id: 'unpredictability', title: 'Surprises', body: 'How do you feel about unexpected changes in plans?', kind: 'scale', axis: 'unpredictability' },
-  { id: 'pace', title: 'Pace', body: 'What pace works for you on a travel day?', kind: 'choice', options: [
-    { value: 'slow', label: 'Slow — one main thing, lots of rest' },
-    { value: 'balanced', label: 'Balanced — two or three things' },
-    { value: 'packed', label: 'Packed — fit it all in' },
-  ] },
   { id: 'interests', title: 'Interests', body: 'Pick anything that sounds good.', kind: 'multi', options: [
     { value: 'culture', label: 'Museums & galleries' },
     { value: 'outdoors', label: 'Parks & trails' },
@@ -33,7 +28,8 @@ const STEPS = [
   ] },
 ]
 
-const SCALE_LABELS = ['Very difficult', 'Difficult', 'Manageable', 'Comfortable', 'Very comfortable']
+const SCALE_LABELS = ['Heavily Uncomfortable', 'Somewhat Uncomfortable', 'Comfortable']
+const SCALE_VALUES = [1, 3, 5]
 
 export default function OnboardingQuiz({ onComplete, onCancel }) {
   const [step, setStep] = useState(0)
@@ -96,7 +92,7 @@ export default function OnboardingQuiz({ onComplete, onCancel }) {
       {current.kind === 'scale' && (
         <div className="quiz-scale" role="radiogroup" aria-label={current.title}>
           {SCALE_LABELS.map((label, i) => {
-            const value = i + 1
+            const value = SCALE_VALUES[i]
             return (
               <button
                 key={value}
@@ -105,7 +101,6 @@ export default function OnboardingQuiz({ onComplete, onCancel }) {
                 className={`quiz-scale-btn ${answers[current.axis] === value ? 'selected' : ''}`}
                 onClick={() => update(current.axis, value)}
               >
-                <span className="quiz-scale-dot">{value}</span>
                 <span className="quiz-scale-label">{label}</span>
               </button>
             )

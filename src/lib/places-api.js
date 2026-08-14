@@ -272,7 +272,7 @@ export async function fetchPlaces(destination) {
       }
     }
 
-    if (merged.length === 0) return []
+    if (merged.length === 0) return null
 
     // Fetch Place Details for the top results to get descriptions.
     // Limit to 8 so we don't hammer the API or exceed quota.

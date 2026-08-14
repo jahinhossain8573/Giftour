@@ -9,12 +9,14 @@ import { getActivityById } from '../data/activities.js'
 import { activityLoad, isRest } from '../lib/sensory.js'
 import { suitabilityAtHour, crowdAt } from '../lib/crowd.js'
 
-// Max selections based on trip duration.
-const MAX_PICKS = {
-  short: 2,
-  half: 3,
-  full: 4,
-  overnight: 5,
+// Max selections based on trip duration and user tolerance.
+function maxPicks(trip, profile) {
+  const byDuration = { short: 2, half: 3, full: 4, overnight: 5 }
+  const durationMax = byDuration[trip?.duration] || 4
+  const tolerance = profile?.tolerance ?? 3
+  if (tolerance <= 2) return Math.min(1, durationMax)
+  if (tolerance === 3) return Math.min(2, durationMax)
+  return durationMax
 }
 
 function bucket(load) {
@@ -44,7 +46,7 @@ export default function AiItineraryPage({ date, profile, preferences, trip, plac
         if (cancelled) return
         setCandidates(result)
         // Pre-select top 4 (or whatever the trip max is).
-        const max = MAX_PICKS[trip?.duration] || 4
+        const max = maxPicks(trip, profile) || 4
         setSelections(new Set(result.slice(0, max).map(c => c.activityId)))
         setPhase('ready')
       } catch (e) {
@@ -69,7 +71,7 @@ export default function AiItineraryPage({ date, profile, preferences, trip, plac
   }
 
   const handleApply = () => {
-    const max = MAX_PICKS[trip?.duration] || 4
+    const max = maxPicks(trip, profile) || 4
     if (selections.size === 0) {
       setApplyError('Select at least one attraction.')
       return
@@ -130,7 +132,7 @@ export default function AiItineraryPage({ date, profile, preferences, trip, plac
     )
   }
 
-  const max = MAX_PICKS[trip?.duration] || 4
+  const max = maxPicks(trip, profile) || 4
   const count = selections.size
 
   // Ready: card grid

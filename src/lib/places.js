@@ -43,16 +43,19 @@ export async function resolvePlaces(destination) {
   // Step 1: Try Google Places API.
   const apiPlaces = await fetchPlaces(destination)
   if (apiPlaces) {
+    console.log('giftour: Google Places API returned', apiPlaces.length, 'places for', destination)
     return {
       places: [...apiPlaces, ...ACTIVITIES],
       matched: destination,
       source: 'google',
     }
   }
+  console.log('giftour: Google Places API returned no data for', destination, '- trying static fallback')
 
   // Step 2: Fall back to static curated city data.
   const city = matchCity(destination)
   if (city) {
+    console.log('giftour: matched curated city', city.name, 'with', city.landmarks.length, 'landmarks')
     return {
       places: [...city.landmarks, ...ACTIVITIES],
       matched: city.name,
@@ -61,5 +64,6 @@ export async function resolvePlaces(destination) {
   }
 
   // Step 3: Generic fallback.
+  console.log('giftour: no curated data for', destination, '- using generic activities')
   return { places: [...ACTIVITIES], matched: null, source: 'generic' }
 }

@@ -8,6 +8,7 @@
 import { ACTIVITIES, getActivityById } from '../data/activities.js'
 import { activityLoad, isRest, dayLoad, capForProfile } from './sensory.js'
 import { suitability, crowdAt } from './crowd.js'
+import { climateCategory } from './climate.js'
 
 const SYSTEM_PROMPT = `You are an itinerary assistant for autistic travellers. You must:
 1. Order items to minimise sensory fatigue: heaviest items mid-morning, never back-to-back.
@@ -22,12 +23,15 @@ export const SYSTEM_PROMPT_PUBLIC = SYSTEM_PROMPT
 // ─── Helpers ──────────────────────────────────────────────────────────
 
 /** Return the first N items of the ranked pool that fit the cap. */
-function pickBestN({ pool, profile, preferences, modifiers, cap, maxItems, mustIncludeIds }) {
+function pickBestN({ pool, profile, preferences, modifiers, cap, maxItems, mustIncludeIds, climate }) {
   const wantIndoors = modifiers.includes('indoors')
   const wantOutdoors = modifiers.includes('outdoors')
   const wantQuieter = modifiers.includes('quieter')
   const wantFood = modifiers.includes('add-food')
-  const restEvery = modifiers.includes('more-rest') ? 1 : 2
+  const restEvery = profile?.rest === 'open'
+    ? 999
+    : (modifiers.includes('more-rest') ? 1 : 2)
+  const tolerance = profile?.tolerance ?? 3
 
   const isLandmark = (a) => {
     // Landmark IDs follow the pattern "city-slug", e.g. london-british-museum.
@@ -35,6 +39,16 @@ function pickBestN({ pool, profile, preferences, modifiers, cap, maxItems, mustI
     // Generic activities (museum-quiet, park-riverside, …) don't match either.
     return /^(?:[a-z]+-[a-z]+-|gmaps-)/.test(a.id)
   }
+  const isGeneric = (a) => !isLandmark(a) && !a._source
+
+  // Check if the pool has ANY real places. If so, generic calm activities get
+  // a heavy penalty — they're fallbacks, not the main attraction.
+  const hasRealPlaces = pool.some(a => isLandmark(a))
+  const genericPenalty = hasRealPlaces ? 60 : 0
+
+  // Climate bonus: hot/cold → prefer indoor, mild → prefer outdoor
+  const climateIndoorBonus = (climate === 'hot' || climate === 'cold') ? 20 : 0
+  const climateOutdoorBonus = climate === 'mild' ? 15 : (climate === 'hot' || climate === 'cold' ? -10 : 0)
 
   // Score and rank.
   const ranked = pool
@@ -44,10 +58,12 @@ function pickBestN({ pool, profile, preferences, modifiers, cap, maxItems, mustI
       activity: a,
       score: suitability(a, profile),
       penalty: preferences.disliked?.includes(a.category) ? 30 : 0,
-      landmarkBonus: isLandmark(a) ? 35 : 0,
+      landmarkBonus: isLandmark(a) ? tolerance * 8 : 0,
+      genericPenalty: isGeneric(a) ? genericPenalty : 0,
+      climateBonus: isIndoor(a) ? climateIndoorBonus : (isOutdoor(a) ? climateOutdoorBonus : 0),
       bonus: wantQuieter && activityLoad(a) <= 3 ? 25 : (wantQuieter ? -15 : 0),
     }))
-    .map(x => ({ ...x, total: x.score - x.penalty + x.landmarkBonus + x.bonus }))
+    .map(x => ({ ...x, total: x.score - x.penalty - x.genericPenalty + x.landmarkBonus + x.climateBonus + x.bonus }))
     .filter(x => x.total > 0)
     .sort((a, b) => b.total - a.total)
 
@@ -192,6 +208,7 @@ export async function organiseItinerary({ date, items, profile, places, trip, mo
   const pool = places || ACTIVITIES
   await delay(350)
   const cap = capForProfile(profile)
+  const climate = climateCategory(trip?.destination)
 
   // Parse the instruction.
   const parsed = parseInstruction(instruction)
@@ -280,7 +297,7 @@ export async function organiseItinerary({ date, items, profile, places, trip, mo
       const mergedModifiers = [...new Set([...modifiers, ...inferred])]
       const freshPicked = pickBestN({
         pool, profile, preferences: { disliked: [] }, modifiers: mergedModifiers,
-        cap, maxItems: computeMaxItems(mergedModifiers, profile),
+        cap, maxItems: computeMaxItems(mergedModifiers, profile), climate,
       })
       if (freshPicked.length > 0) {
         working = freshPicked.map(a => ({
@@ -329,7 +346,9 @@ export async function organiseItinerary({ date, items, profile, places, trip, mo
   const hoursPerSlot = slotCount > 0 ? Math.max(1, Math.floor(totalHours / (slotCount + (rests.length > 0 ? 1 : 0)))) : 2
 
   const ordered = []
-  const restEvery = modifiers.includes('more-rest') ? 1 : 2
+  const restEvery = profile?.rest === 'open'
+    ? 999
+    : (modifiers.includes('more-rest') ? 1 : 2)
   let cursor = startHour
   let sinceRest = 0
   for (const item of others) {
@@ -368,11 +387,19 @@ export async function organiseItinerary({ date, items, profile, places, trip, mo
     load = dayLoad(ordered)
   }
 
+  const climateNote = climate === 'hot'
+    ? ' Hot weather — favouring indoor activities.'
+    : climate === 'cold'
+      ? ' Cold weather — favouring indoor activities.'
+      : climate === 'mild'
+        ? ' Mild weather — outdoor-friendly.'
+        : ''
+
   return {
     items: ordered,
-    notes: load > cap * 0.8
+    notes: (load > cap * 0.8
       ? `Loaded day (${load}/${cap}). Consider removing one item or adding a longer rest.`
-      : `Comfortable load (${load}/${cap}).`,
+      : `Comfortable load (${load}/${cap}).`) + climateNote,
   }
 }
 
@@ -381,12 +408,13 @@ export async function generateItinerary({ date, profile, preferences = {}, place
   await delay(500)
   const pool = places || ACTIVITIES
   const cap = capForProfile(profile)
+  const climate = climateCategory(trip?.destination)
 
   const startHour = computeStartHour(profile, modifiers)
   const maxItems = computeMaxItems(modifiers, profile)
 
   const picked = pickBestN({
-    pool, profile, preferences, modifiers, cap, maxItems,
+    pool, profile, preferences, modifiers, cap, maxItems, climate,
   })
 
   // Schedule the picked items, spreading them across the available time.
@@ -406,7 +434,9 @@ export async function generateItinerary({ date, profile, preferences = {}, place
   const hoursPerSlot = slotCount > 0 ? Math.max(1, Math.floor(totalHours / (slotCount + (rests.length > 0 ? 1 : 0)))) : 2
 
   const ordered = []
-  const restEvery = modifiers.includes('more-rest') ? 1 : 2
+  const restEvery = profile?.rest === 'open'
+    ? 999
+    : (modifiers.includes('more-rest') ? 1 : 2)
   let cursor = startHour
   let sinceRest = 0
   for (const item of others) {
@@ -462,9 +492,23 @@ export async function generateItinerary({ date, profile, preferences = {}, place
     }
   }
 
+  const tolerance = profile?.tolerance ?? 3
+  const toleranceNote = tolerance <= 2
+    ? ' Low tolerance — keeping it calm with fewer activities.'
+    : tolerance >= 4
+      ? ` High tolerance — ${maxItems} activities with more variety.`
+      : ''
+  const climateNote = climate === 'hot'
+    ? ' Hot weather — favouring indoor activities.'
+    : climate === 'cold'
+      ? ' Cold weather — favouring indoor activities.'
+      : climate === 'mild'
+        ? ' Mild weather — outdoor-friendly picks.'
+        : ''
+
   return {
     items: ordered,
-    notes: `Auto-generated from your profile. Total load ${dayLoad(ordered)}/${cap}.`,
+    notes: `Auto-generated from your profile. Total load ${dayLoad(ordered)}/${cap}.${toleranceNote}${climateNote}`,
   }
 }
 
@@ -478,13 +522,22 @@ export async function rankCandidates({ profile, preferences = {}, places, trip, 
   await delay(300)
   const pool = places || ACTIVITIES
   const isLandmark = (a) => /^(?:[a-z]+-[a-z]+-|gmaps-)/.test(a.id)
+  const isGeneric = (a) => !isLandmark(a) && !a._source
+  const hasRealPlaces = pool.some(a => isLandmark(a))
+  const genericPenalty = hasRealPlaces ? 60 : 0
+  const tolerance = profile?.tolerance ?? 3
+  const climate = climateCategory(trip?.destination)
+  const climateIndoorBonus = (climate === 'hot' || climate === 'cold') ? 20 : 0
+  const climateOutdoorBonus = climate === 'mild' ? 15 : (climate === 'hot' || climate === 'cold' ? -10 : 0)
 
   const ranked = pool
     .filter(a => a.id && a.name)
     .map(a => ({
       activityId: a.id,
       score: suitability(a, profile)
-        + (isLandmark(a) ? 30 : 0)
+        + (isLandmark(a) ? tolerance * 8 : 0)
+        + (isIndoor(a) ? climateIndoorBonus : (isOutdoor(a) ? climateOutdoorBonus : 0))
+        - (isGeneric(a) ? genericPenalty : 0)
         - (preferences.disliked?.includes(a.category) ? 25 : 0),
     }))
     .filter(x => x.score > 10)
@@ -555,8 +608,9 @@ function computeStartHour(profile, modifiers) {
 }
 
 function computeMaxItems(modifiers, profile) {
-  let n = profile?.pace === 'packed' ? 6 : 4
-  if (modifiers.includes('shorter')) n = Math.max(2, n - 2)
+  const tolerance = profile?.tolerance ?? 3
+  let n = Math.min(5, Math.max(1, Math.round(tolerance * 0.8)))
+  if (modifiers.includes('shorter')) n = Math.max(1, n - 1)
   return n
 }
 
