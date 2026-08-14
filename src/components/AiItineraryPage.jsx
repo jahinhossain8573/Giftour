@@ -11,11 +11,11 @@ import { suitabilityAtHour, crowdAt } from '../lib/crowd.js'
 
 // Max selections based on trip duration and user tolerance.
 function maxPicks(trip, profile) {
-  const byDuration = { short: 2, half: 3, full: 4, overnight: 5 }
+  const byDuration = { short: 3, half: 4, full: 7, overnight: 8 }
   const durationMax = byDuration[trip?.duration] || 4
   const tolerance = profile?.tolerance ?? 3
-  if (tolerance <= 2) return Math.min(1, durationMax)
-  if (tolerance === 3) return Math.min(2, durationMax)
+  if (tolerance <= 2) return Math.min(2, durationMax)
+  if (tolerance === 3) return Math.min(4, durationMax)
   return durationMax
 }
 

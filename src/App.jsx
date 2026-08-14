@@ -198,7 +198,7 @@ export default function App() {
     return (
       <div className="app">
         <header className="app-header">
-          <h1>Giftour</h1>
+          <h1><img src="/favicon.png" alt="Giftour" className="logo" /></h1>
           <p className="tagline">Travel planning, tuned to you.</p>
         </header>
         <main className="container">
@@ -214,7 +214,7 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <div>
-          <h1>Giftour</h1>
+          <img src="/favicon.png" alt="Giftour" className="logo" />
           <p className="tagline muted small">
             Hi, {state.profile.name}. Tolerance {state.profile.tolerance}/5.
             {' '}
@@ -297,6 +297,9 @@ export default function App() {
                   )}
                 </div>
                 <button className="btn btn-ghost small" onClick={() => saveTrip(null)}>Edit trip</button>
+                <button className="btn btn-ghost small danger" onClick={() => {
+                  if (window.confirm('Reset the plan for this day?')) setItems([])
+                }}>Reset day</button>
               </div>
               <ItineraryEditor
                 date={selected}

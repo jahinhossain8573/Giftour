@@ -7,7 +7,12 @@ import { ACTIVITIES, getActivityById } from '../data/activities.js'
 import { activityLoad, isRest } from '../lib/sensory.js'
 import { suitability, suitabilityAtHour, crowdAt } from '../lib/crowd.js'
 
-const hourLabel = (h) => `${String(Math.floor(h)).padStart(2, '0')}:00`
+const hourLabel = (h) => {
+  const hour = Math.floor(h)
+  const ampm = hour >= 12 ? 'PM' : 'AM'
+  const display = hour % 12 || 12
+  return `${display}:00 ${ampm}`
+}
 
 export default function ItineraryEditor({ date, items, profile, places, onChange, onLogFeedback }) {
   const [showAdd, setShowAdd] = useState(false)
@@ -41,9 +46,8 @@ export default function ItineraryEditor({ date, items, profile, places, onChange
 
   const remove = (id) => onChange(items.filter(it => it.id !== id))
 
-  const markComplete = (it, comfort) => {
-    updateSlot(it.id, { completed: true, comfort })
-    onLogFeedback({ date, activityId: it.activityId, comfort })
+  const toggleComplete = (it) => {
+    updateSlot(it.id, { completed: !it.completed })
   }
 
   const filtered = pool.filter(a =>
@@ -145,18 +149,15 @@ export default function ItineraryEditor({ date, items, profile, places, onChange
                       aria-label="Hours"
                     />
                   </label>
-                  {!it.completed ? (
-                    <div className="feedback-row">
-                      <button className="btn btn-ghost small" onClick={() => markComplete(it, 1)} title="Mark as comfortable">✓</button>
-                      <button className="btn btn-ghost small" onClick={() => markComplete(it, -1)} title="Mark as overwhelming">✗</button>
-                    </div>
-                  ) : (
-                    <div className="feedback-row">
-                      <span className="feedback-tag" data-comfort={it.comfort}>
-                        {it.comfort > 0 ? 'comfortable' : it.comfort < 0 ? 'overwhelming' : 'neutral'}
-                      </span>
-                    </div>
-                  )}
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={it.completed}
+                      onChange={() => toggleComplete(it)}
+                      aria-label="Mark as done"
+                    />
+                    <span>Done</span>
+                  </label>
                   <button className="btn btn-ghost small danger" onClick={() => remove(it.id)} aria-label="Remove">×</button>
                 </div>
               </li>

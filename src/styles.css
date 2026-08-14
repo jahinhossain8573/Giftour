@@ -42,7 +42,9 @@ body {
   background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
-.app-header h1 { margin: 0; font-size: 1.4rem; letter-spacing: -0.01em; }
+.app-header h1 { margin: 0; }
+.logo { height: 36px; width: auto; display: block; }
+.role-select-header .logo { margin: 0 auto 8px; height: 48px; }
 .tagline { margin: 4px 0 0; }
 .header-actions { display: flex; gap: 8px; }
 
@@ -267,18 +269,36 @@ body {
   .slot { grid-template-columns: 1fr; }
 }
 .slot-rest { background: #eef2f4; }
-.slot-done { opacity: 0.85; border-style: dashed; }
+.slot-done { opacity: 0.7; }
+.slot-done .slot-title strong { text-decoration: line-through; color: var(--muted); }
 .slot-time { display: flex; flex-direction: column; gap: 4px; }
 .slot-main { display: grid; gap: 4px; }
 .slot-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .slot-meta { display: flex; flex-wrap: wrap; gap: 4px; }
 .slot-notes { margin-top: 4px; }
 .slot-side { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  cursor: pointer;
+  min-height: 36px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 120ms ease;
+}
+.checkbox-label:hover { background: var(--surface-2); }
+.checkbox-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
 .hours-label { display: flex; align-items: center; gap: 4px; font-size: 0.85rem; color: var(--muted); }
-.feedback-row { display: flex; gap: 4px; }
-.feedback-tag { font-size: 0.8rem; padding: 2px 8px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
-.feedback-tag[data-comfort="1"] { background: #e0efe8; border-color: #b6d4c6; }
-.feedback-tag[data-comfort="-1"] { background: #f1dada; border-color: #d6b3b3; }
 
 .load-pill { font-size: 0.75rem; padding: 2px 8px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--muted); }
 .load-pill.load-rest { background: #e3ebf0; color: var(--rest); border-color: #c2d0db; }

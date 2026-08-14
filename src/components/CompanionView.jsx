@@ -8,7 +8,12 @@ import { getActivityById } from '../data/activities.js'
 import { activityLoad, isRest, budgetStatus, AXES, axisLabels } from '../lib/sensory.js'
 import { suitabilityAtHour, crowdAt } from '../lib/crowd.js'
 
-function hourLabel(h) { return `${String(Math.floor(h)).padStart(2, '0')}:00` }
+function hourLabel(h) {
+  const hour = Math.floor(h)
+  const ampm = hour >= 12 ? 'PM' : 'AM'
+  const display = hour % 12 || 12
+  return `${display}:00 ${ampm}`
+}
 
 function bucket(load) {
   if (load <= 0) return 'rest'
@@ -61,7 +66,7 @@ export default function CompanionView({ code, onDisconnect }) {
     <div className="app">
       <header className="app-header">
         <div>
-          <h1>Giftour</h1>
+          <img src="/favicon.png" alt="Giftour" className="logo" />
           <p className="tagline muted small">
             Monitoring {profile?.name || 'Traveller'} · Code: {code}
           </p>

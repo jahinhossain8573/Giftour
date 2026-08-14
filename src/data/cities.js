@@ -26,7 +26,8 @@ const london = {
       location: 'Bloomsbury',
       sensory: { noise: 2, crowds: 4, light: 2, unpredictability: 1 },
       description: 'Vast permanent collection, free entry, cloakrooms and quiet room at entry.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
     },
     {
       id: 'london-hyde-park',
@@ -35,7 +36,8 @@ const london = {
       location: 'Mayfair / Knightsbridge',
       sensory: { noise: 1, crowds: 2, light: 3, unpredictability: 1 },
       description: '350 acres, paved paths, benches every 100m, multiple cafe kiosks.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [13,14,15,16] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [13,14,15,16] }),
     },
     {
       id: 'london-st-james-park',
@@ -44,7 +46,8 @@ const london = {
       location: 'Westminster',
       sensory: { noise: 1, crowds: 2, light: 3, unpredictability: 1 },
       description: 'Predictable short loop, pelicans fed at 14:30, lakeside benches.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [12,13,14,15,16] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [12,13,14,15,16] }),
     },
     {
       id: 'london-tower',
@@ -53,7 +56,8 @@ const london = {
       location: 'Tower Hill',
       sensory: { noise: 2, crowds: 4, light: 2, unpredictability: 2 },
       description: 'Time-slot tickets, fixed route, Yeoman Wardens, free audio guide.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,19,20,21,22,23], normal: 1, peak: [11,12,13,14] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,19,20,21,22,23], normal: 1, peak: [11,12,13,14] }),
     },
     {
       id: 'london-tate-modern',
@@ -62,7 +66,8 @@ const london = {
       location: 'Bankside',
       sensory: { noise: 2, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Spacious Turbine Hall, member-only quiet hours, no flash photography.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [12,13,14,15] }),
     },
     {
       id: 'london-borough-market',
@@ -71,7 +76,8 @@ const london = {
       location: 'Southwark',
       sensory: { noise: 3, crowds: 4, light: 2, unpredictability: 3 },
       description: 'Open-air market, multiple vendors, busy at lunch, smells vary.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
     },
     {
       id: 'london-south-bank-walk',
@@ -80,7 +86,8 @@ const london = {
       location: 'South Bank',
       sensory: { noise: 2, crowds: 2, light: 3, unpredictability: 1 },
       description: 'Linear paved path along the Thames, multiple exit points, benches.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [13,14,15,16,17] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [13,14,15,16,17] }),
     },
     {
       id: 'london-sky-garden',
@@ -89,7 +96,8 @@ const london = {
       location: 'City of London',
       sensory: { noise: 2, crowds: 2, light: 3, unpredictability: 1 },
       description: 'Free, time-slot entry, lush planting, panoramic city views.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,17,18,19,20,21,22,23], normal: 1, peak: [12,13,14] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,17,18,19,20,21,22,23], normal: 1, peak: [12,13,14] }),
     },
     {
       id: 'london-leadenhall',
@@ -98,7 +106,8 @@ const london = {
       location: 'City of London',
       sensory: { noise: 3, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Covered Victorian market, cheese/wine/chocolate shops, lunch spots.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,19,20,21,22,23], normal: 1, peak: [12,13,14] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,19,20,21,22,23], normal: 1, peak: [12,13,14] }),
     },
     {
       id: 'london-rest-cafe',
@@ -107,7 +116,8 @@ const london = {
       location: 'Mayfair',
       sensory: { noise: 1, crowds: 1, light: 2, unpredictability: 1 },
       description: 'Bookable, pastel room, calm service, dietary cards available.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,10,16,17,18,19,20,21,22,23], normal: 1, peak: [14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,10,16,17,18,19,20,21,22,23], normal: 1, peak: [14,15] }),
     },
   ],
 }
@@ -124,7 +134,8 @@ const tokyo = {
       location: 'Asakusa',
       sensory: { noise: 3, crowds: 4, light: 3, unpredictability: 2 },
       description: 'Tokyo\'s oldest Buddhist temple, approached through the iconic Kaminarimon Gate and Nakamise shopping street with traditional snacks and souvenirs.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [10,11,12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [10,11,12,13,14,15] }),
     },
     {
       id: 'tokyo-meiji',
@@ -133,7 +144,8 @@ const tokyo = {
       location: 'Shibuya',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Serene Shinto shrine set within a 170-acre evergreen forest. Long gravel approach, sake barrel displays, and iris garden. Free entry, predictable loop path.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14] }),
     },
     {
       id: 'tokyo-shibuya-crossing',
@@ -142,7 +154,8 @@ const tokyo = {
       location: 'Shibuya',
       sensory: { noise: 4, crowds: 5, light: 3, unpredictability: 3 },
       description: 'World\'s busiest pedestrian scramble crossing where up to 3,000 people cross at once from all directions, surrounded by giant video screens.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,23], normal: 1, peak: [8,9,10,17,18,19,20] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,23], normal: 1, peak: [8,9,10,17,18,19,20] }),
     },
     {
       id: 'tokyo-skytree',
@@ -151,7 +164,8 @@ const tokyo = {
       location: 'Sumida',
       sensory: { noise: 2, crowds: 4, light: 2, unpredictability: 1 },
       description: 'Japan\'s tallest structure at 634m with two observation decks offering panoramic views. Timed-entry tickets, glass-floor sections, predictable elevator route.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,22,23], normal: 1, peak: [12,13,14,15,16,17] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,22,23], normal: 1, peak: [12,13,14,15,16,17] }),
     },
     {
       id: 'tokyo-imperial-east',
@@ -160,7 +174,8 @@ const tokyo = {
       location: 'Chiyoda',
       sensory: { noise: 1, crowds: 1, light: 2, unpredictability: 1 },
       description: 'The former Edo Castle grounds, now the Imperial Palace. The East Gardens are free with stone walls, moats, pine groves, and remains of the old castle keep.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,17,18,19,20,21,22,23], normal: 1, peak: [11,12,13,14] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,17,18,19,20,21,22,23], normal: 1, peak: [11,12,13,14] }),
     },
     {
       id: 'tokyo-shinjuku-gyoen',
@@ -169,7 +184,8 @@ const tokyo = {
       location: 'Shinjuku',
       sensory: { noise: 1, crowds: 2, light: 3, unpredictability: 1 },
       description: 'One of Tokyo\'s largest parks combining Japanese, French formal, and English landscape gardens. Famous for cherry blossoms, greenhouses, and spacious lawns.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
     },
     {
       id: 'tokyo-ueno-park',
@@ -178,7 +194,8 @@ const tokyo = {
       location: 'Ueno',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Spacious public park housing multiple world-class museums, Ueno Zoo, Shinobazu Pond with lotus flowers, and over 1,000 cherry trees.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
+      visitType: 'intense',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
     },
     {
       id: 'tokyo-akihabara',
@@ -187,7 +204,8 @@ const tokyo = {
       location: 'Akihabara',
       sensory: { noise: 3, crowds: 4, light: 3, unpredictability: 3 },
       description: 'Tokyo\'s neon-lit electronics and otaku cultural district packed with multi-story arcades, anime shops, electronics retailers, and themed cafes.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,22,23], normal: 1, peak: [11,12,13,14,15,16,17,18] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,22,23], normal: 1, peak: [11,12,13,14,15,16,17,18] }),
     },
     {
       id: 'tokyo-ginza',
@@ -196,7 +214,8 @@ const tokyo = {
       location: 'Ginza',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 1 },
       description: 'Tokyo\'s premier upscale shopping and dining district with Michelin-starred restaurants, department store food halls (depachika), and wide boulevards.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,21,22,23], normal: 1, peak: [13,14,15,16,17,18] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,21,22,23], normal: 1, peak: [13,14,15,16,17,18] }),
     },
     {
       id: 'tokyo-teamlab-borderless',
@@ -205,7 +224,8 @@ const tokyo = {
       location: 'Azabudai Hills',
       sensory: { noise: 1, crowds: 4, light: 3, unpredictability: 2 },
       description: 'Immersive digital art museum where installations of light, sound, and projection respond to visitor movement. Timed-entry tickets required.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,21,22,23], normal: 1, peak: [12,13,14,15,16,17] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,21,22,23], normal: 1, peak: [12,13,14,15,16,17] }),
     },
     {
       id: 'tokyo-tsukiji',
@@ -214,7 +234,8 @@ const tokyo = {
       location: 'Chuo',
       sensory: { noise: 3, crowds: 4, light: 2, unpredictability: 3 },
       description: 'The bustling outer market of the historic Tsukiji fish market with tiny sushi bars, knife shops, and street-food stalls. Narrow covered lanes.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,16,17,18,19,20,21,22,23], normal: 1, peak: [9,10,11,12] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,16,17,18,19,20,21,22,23], normal: 1, peak: [9,10,11,12] }),
     },
     {
       id: 'tokyo-cafe',
@@ -223,7 +244,8 @@ const tokyo = {
       location: 'Minato',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'A calm, minimalist cafe with hand-pour coffee, soft lighting, and counter seating. No loud music, peaceful atmosphere for a quiet break.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
     },
   ],
 }
@@ -240,7 +262,8 @@ const kyoto = {
       location: 'Fushimi',
       sensory: { noise: 1, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Thousands of vermillion torii gates winding up Inari Mountain. Open 24 hours, free entry. Quieter the higher you climb; best at dawn or dusk.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [9,10,11,12,13,14] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [9,10,11,12,13,14] }),
     },
     {
       id: 'kyoto-kinkakuji',
@@ -249,7 +272,8 @@ const kyoto = {
       location: 'Kita',
       sensory: { noise: 1, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Zen temple entirely covered in gold leaf set beside a mirror pond. UNESCO World Heritage. One-way paved loop through the garden, timed entry.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,17,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,17,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14] }),
     },
     {
       id: 'kyoto-kiyomizu',
@@ -258,7 +282,8 @@ const kyoto = {
       location: 'Higashiyama',
       sensory: { noise: 1, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Hillside temple with a vast wooden stage offering panoramic Kyoto views. UNESCO site. Predictable uphill path, Otawa Waterfall for drinking.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14] }),
     },
     {
       id: 'kyoto-arashiyama-bamboo',
@@ -267,7 +292,8 @@ const kyoto = {
       location: 'Arashiyama',
       sensory: { noise: 1, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Iconic paved path through towering bamboo stalks that sway and creak in the wind. Shortest queues at sunrise. Free, open 24/7.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14] }),
     },
     {
       id: 'kyoto-gion',
@@ -276,7 +302,8 @@ const kyoto = {
       location: 'Gion',
       sensory: { noise: 2, crowds: 3, light: 2, unpredictability: 2 },
       description: 'Historic geisha district with preserved wooden machiya teahouses, cobblestone lanes, and Shirakawa Canal. Best in late afternoon when lanterns glow.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,22,23], normal: 1, peak: [13,14,15,16,17,18,19,20] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,22,23], normal: 1, peak: [13,14,15,16,17,18,19,20] }),
     },
     {
       id: 'kyoto-nijo-castle',
@@ -285,7 +312,8 @@ const kyoto = {
       location: 'Nakagyo',
       sensory: { noise: 1, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Tokugawa shogun\'s Kyoto residence featuring nightingale floors that chirp to warn of intruders and ornate painted screens. UNESCO World Heritage.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,17,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,17,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14] }),
     },
     {
       id: 'kyoto-nishiki',
@@ -294,7 +322,8 @@ const kyoto = {
       location: 'Nakagyo',
       sensory: { noise: 2, crowds: 3, light: 2, unpredictability: 3 },
       description: 'Five-block covered arcade known as "Kyoto\'s Kitchen" with over 100 food stalls and shops selling fresh seafood, pickles, sweets, and kitchen knives.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,17,18,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,17,18,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
     },
     {
       id: 'kyoto-philosopher-path',
@@ -303,7 +332,8 @@ const kyoto = {
       location: 'Higashiyama',
       sensory: { noise: 1, crowds: 1, light: 2, unpredictability: 1 },
       description: 'Two-kilometre stone canal path lined with hundreds of cherry trees, small temples, and cafes. Named after philosopher Nishida Kitaro.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,19,20,21,22,23], normal: 1, peak: [13,14,15] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,19,20,21,22,23], normal: 1, peak: [13,14,15] }),
     },
     {
       id: 'kyoto-ryoanji',
@@ -312,7 +342,8 @@ const kyoto = {
       location: 'Ukyo',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Japan\'s most famous zen rock garden: 15 moss-covered stones raked into white gravel, designed for meditation. UNESCO World Heritage.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,17,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,17,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13] }),
     },
     {
       id: 'kyoto-tenryuji',
@@ -321,7 +352,8 @@ const kyoto = {
       location: 'Arashiyama',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'UNESCO-listed Zen temple with a stunning pond garden designed by Muso Soseki, borrowing the Arashiyama mountains as backdrop.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,17,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,17,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13] }),
     },
     {
       id: 'kyoto-tea-house',
@@ -330,7 +362,8 @@ const kyoto = {
       location: 'Gion',
       sensory: { noise: 1, crowds: 1, light: 1, unpredictability: 1 },
       description: 'Quiet tatami tea room offering a traditional matcha ceremony with wagashi sweets. Bookable time slots, small groups only, calm service.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,10,17,18,19,20,21,22,23], normal: 1, peak: [14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,10,17,18,19,20,21,22,23], normal: 1, peak: [14,15] }),
     },
   ],
 }
@@ -347,7 +380,8 @@ const newyork = {
       location: 'Manhattan',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Wooded paths, multiple entrances, benches, Bethesda Terrace.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [12,13,14,15,16] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [12,13,14,15,16] }),
     },
     {
       id: 'nyc-met',
@@ -356,7 +390,8 @@ const newyork = {
       location: 'Upper East Side',
       sensory: { noise: 1, crowds: 4, light: 2, unpredictability: 1 },
       description: 'Enormous permanent collection, pay-what-you-wish for NY residents, quiet map at entry.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [12,13,14,15] }),
     },
     {
       id: 'nyc-highline',
@@ -365,7 +400,8 @@ const newyork = {
       location: 'Chelsea / Meatpacking',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 1 },
       description: 'Elevated linear park, predictable route, multiple exit stairs, benches.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [14,15,16,17] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [14,15,16,17] }),
     },
     {
       id: 'nyc-grandcentral',
@@ -374,7 +410,8 @@ const newyork = {
       location: 'Midtown',
       sensory: { noise: 3, crowds: 4, light: 2, unpredictability: 2 },
       description: 'Iconic main concourse, food hall downstairs, ceiling mural.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [8,9,17,18,19] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [8,9,17,18,19] }),
     },
     {
       id: 'nyc-bryant-park',
@@ -383,7 +420,8 @@ const newyork = {
       location: 'Midtown',
       sensory: { noise: 2, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Reading room with movable chairs, lawn, kiosks, behind the public library.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [12,13,14,15] }),
     },
     {
       id: 'nyc-brooklyn-bridge-walk',
@@ -392,7 +430,8 @@ const newyork = {
       location: 'Brooklyn / Manhattan',
       sensory: { noise: 2, crowds: 3, light: 2, unpredictability: 1 },
       description: '1.1-mile pedestrian path, predictable, benches at the towers.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
     },
     {
       id: 'nyc-cafe',
@@ -401,7 +440,8 @@ const newyork = {
       location: 'SoHo',
       sensory: { noise: 2, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Order-at-counter French cafe, table service, calm mornings.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
     },
     {
       id: 'nyc-911-memorial',
@@ -410,7 +450,8 @@ const newyork = {
       location: 'Lower Manhattan',
       sensory: { noise: 2, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Time-slot entry, reflecting pools, dimmed museum galleries.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [12,13,14] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [12,13,14] }),
     },
     {
       id: 'nyc-moma',
@@ -419,7 +460,8 @@ const newyork = {
       location: 'Midtown',
       sensory: { noise: 2, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Modern art, calmer after 17:00, free on Friday evenings.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,20,21,22,23], normal: 1, peak: [13,14,15,16] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,20,21,22,23], normal: 1, peak: [13,14,15,16] }),
     },
   ],
 }
@@ -436,7 +478,8 @@ const paris = {
       location: '1er arrondissement',
       sensory: { noise: 1, crowds: 4, light: 2, unpredictability: 1 },
       description: 'Time-slot tickets, quieter on Wednesday/Friday evenings, big galleries.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,21,22,23], normal: 1, peak: [11,12,13,14] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,21,22,23], normal: 1, peak: [11,12,13,14] }),
     },
     {
       id: 'paris-tuilleies',
@@ -445,7 +488,8 @@ const paris = {
       location: '1er arrondissement',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Formal gardens, gravel paths, green metal chairs, Orangerie nearby.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [13,14,15,16] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [13,14,15,16] }),
     },
     {
       id: 'paris-luxembourg',
@@ -454,7 +498,8 @@ const paris = {
       location: '6e arrondissement',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Tree-lined paths, Medici fountain, sailboats, chairs for hire.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [14,15,16,17] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [14,15,16,17] }),
     },
     {
       id: 'paris-orsay',
@@ -463,7 +508,8 @@ const paris = {
       location: '7e arrondissement',
       sensory: { noise: 1, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Impressionist collection, former train station, calmer Thursday evenings.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [12,13,14] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [12,13,14] }),
     },
     {
       id: 'paris-marche-bastille',
@@ -472,7 +518,8 @@ const paris = {
       location: '11e arrondissement',
       sensory: { noise: 3, crowds: 3, light: 2, unpredictability: 3 },
       description: 'Open-air market Thursday/Sunday, multiple vendors, busy at peak.',
-      crowdByHour: [
+      visitType: 'moderate',
+    crowdByHour: [
         0,0,0,0,0,0,0,0,
         1,2,3,3,2,1,0,0,
         0,0,0,0,0,0,0,0,
@@ -486,7 +533,8 @@ const paris = {
       location: '10e arrondissement',
       sensory: { noise: 1, crowds: 1, light: 2, unpredictability: 1 },
       description: 'Tree-lined canal path, low foot traffic, locks every few minutes.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,20,21,22,23], normal: 1, peak: [14,15,16] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,20,21,22,23], normal: 1, peak: [14,15,16] }),
     },
     {
       id: 'paris-sainte-chapelle',
@@ -495,7 +543,8 @@ const paris = {
       location: '1er arrondissement',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Time-slot tickets, stained glass, dim ground floor, small space.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,19,20,21,22,23], normal: 1, peak: [12,13,14] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,19,20,21,22,23], normal: 1, peak: [12,13,14] }),
     },
     {
       id: 'paris-cafe',
@@ -504,7 +553,8 @@ const paris = {
       location: 'Multiple',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Multiple locations, courtyard seating, calm mornings.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
     },
   ],
 }
@@ -521,7 +571,8 @@ const dhaka = {
       location: 'Old Dhaka',
       sensory: { noise: 3, crowds: 4, light: 2, unpredictability: 2 },
       description: 'Stunning pink Mughal-era palace museum overlooking the Buriganga. Timed entry, spacious rooms, shaded verandas.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
     },
     {
       id: 'dhaka-lalbagh-fort',
@@ -530,7 +581,8 @@ const dhaka = {
       location: 'Old Dhaka',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 1 },
       description: 'Incomplete Mughal fort complex with gardens, mosque, and museum. Predictable one-way route through the grounds.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14] }),
     },
     {
       id: 'dhaka-rabindra-sarobar',
@@ -539,7 +591,8 @@ const dhaka = {
       location: 'Dhanmondi',
       sensory: { noise: 1, crowds: 2, light: 3, unpredictability: 1 },
       description: 'Serene lake surrounded by landscaped gardens, walking paths, and benches. Popular for morning walks and quiet reflection.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [6,7,8,16,17,18] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [6,7,8,16,17,18] }),
     },
     {
       id: 'dhaka-star-mosque',
@@ -548,7 +601,8 @@ const dhaka = {
       location: 'Old Dhaka',
       sensory: { noise: 1, crowds: 2, light: 1, unpredictability: 1 },
       description: 'Beautiful mosque adorned with blue star mosaics. Calm interior, small prayer hall, peaceful courtyard.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,13,14,15,16,17,18,19,20,21,22,23], normal: 1, peak: [6,7,8,9,10,11,12] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,13,14,15,16,17,18,19,20,21,22,23], normal: 1, peak: [6,7,8,9,10,11,12] }),
     },
     {
       id: 'dhaka-liberation-museum',
@@ -557,7 +611,8 @@ const dhaka = {
       location: 'Segunbagicha',
       sensory: { noise: 1, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Well-organised museum chronicling Bangladesh\'s independence. Air-conditioned galleries, clear signage, bench seating.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
     },
     {
       id: 'dhaka-parliament',
@@ -566,7 +621,8 @@ const dhaka = {
       location: 'Sher-e-Bangla Nagar',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Louis Kahn\'s architectural masterpiece surrounded by a large lake. Guided tours available, peaceful grounds.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15,16] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15,16] }),
     },
     {
       id: 'dhaka-hatirjheel',
@@ -575,7 +631,8 @@ const dhaka = {
       location: 'Hatirjheel',
       sensory: { noise: 2, crowds: 2, light: 3, unpredictability: 1 },
       description: 'Scenic 2km waterfront walkway with bridges, fountains, and food kiosks. Best visited early morning or evening.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,22,23], normal: 1, peak: [17,18,19,20,21] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,22,23], normal: 1, peak: [17,18,19,20,21] }),
     },
     {
       id: 'dhaka-sadarghat',
@@ -584,7 +641,8 @@ const dhaka = {
       location: 'Old Dhaka',
       sensory: { noise: 4, crowds: 5, light: 3, unpredictability: 4 },
       description: 'Lively river port on the Buriganga with hundreds of boats. Intense sensory experience — best viewed from a boat for distance.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,22,23], normal: 1, peak: [8,9,10,11,12,13,14,15,16,17,18,19,20,21] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,22,23], normal: 1, peak: [8,9,10,11,12,13,14,15,16,17,18,19,20,21] }),
     },
     {
       id: 'dhaka-ramna-park',
@@ -593,7 +651,8 @@ const dhaka = {
       location: 'Ramna',
       sensory: { noise: 1, crowds: 2, light: 3, unpredictability: 1 },
       description: 'Large green park in central Dhaka with ancient trees, lake, and paved walking paths. Calm mornings especially.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [8,9,10,16,17,18] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [8,9,10,16,17,18] }),
     },
     {
       id: 'dhaka-baldha-garden',
@@ -602,7 +661,8 @@ const dhaka = {
       location: 'Shahbagh',
       sensory: { noise: 1, crowds: 1, light: 2, unpredictability: 1 },
       description: 'Historic botanical garden with rare plant species, greenhouses, and shaded seating areas. Quiet retreat from the city.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15,16] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15,16] }),
     },
     {
       id: 'dhaka-du-campus',
@@ -611,7 +671,8 @@ const dhaka = {
       location: 'Shahbagh',
       sensory: { noise: 2, crowds: 2, light: 3, unpredictability: 1 },
       description: 'Historic campus with colonial architecture, tree-lined avenues, and the Aparajeyo Bangla sculpture. Open atmosphere.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [10,11,12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [10,11,12,13,14,15] }),
     },
     {
       id: 'dhaka-cafe',
@@ -620,7 +681,8 @@ const dhaka = {
       location: 'Dhanmondi',
       sensory: { noise: 2, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Quiet family-run restaurant serving traditional Bangladeshi cuisine. Calm interior, predictable menu, seating upstairs.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,10,17,18,19,20,21,22,23], normal: 1, peak: [12,13,14,15,16] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,10,17,18,19,20,21,22,23], normal: 1, peak: [12,13,14,15,16] }),
     },
     {
       id: 'dhaka-national-museum',
@@ -629,7 +691,8 @@ const dhaka = {
       location: 'Shahbagh',
       sensory: { noise: 1, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Four-storey national museum housing art, history, and natural science galleries with a notable collection of Mughal artefacts.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
+      visitType: 'intense',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
     },
     {
       id: 'dhaka-botanical-gardens',
@@ -638,7 +701,8 @@ const dhaka = {
       location: 'Mirpur',
       sensory: { noise: 1, crowds: 2, light: 3, unpredictability: 1 },
       description: 'Large botanical garden with a vast lake, lotus ponds, tropical tree collections, glasshouses, and shaded walking trails.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
     },
     {
       id: 'dhaka-shankharia-bazar',
@@ -647,7 +711,8 @@ const dhaka = {
       location: 'Old Dhaka',
       sensory: { noise: 4, crowds: 5, light: 2, unpredictability: 4 },
       description: 'Narrow rickshaw-filled lanes in Old Dhaka\'s Hindu craft quarter, lined with conch-shell workshops, jewellery makers, and idol sculptors.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [8,9,10,11,12,13,14,15,16,17,18,19,20,21] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [8,9,10,11,12,13,14,15,16,17,18,19,20,21] }),
     },
   ],
 }
@@ -664,7 +729,8 @@ const chattogram = {
       location: 'Patenga',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 2 },
       description: 'Urban beach on the Bay of Bengal with a concrete seawall, kite vendors, and views of the Karnaphuli river mouth.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [15,16,17,18,19,20,21] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [15,16,17,18,19,20,21] }),
     },
     {
       id: 'chattogram-foys-lake',
@@ -673,7 +739,8 @@ const chattogram = {
       location: 'Pahartali',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 1 },
       description: 'Artificial lake nestled in the hills with paddle boats, landscaped gardens, and lakeside walking paths.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,20,21,22,23], normal: 1, peak: [11,12,13,14,15,16,17] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,20,21,22,23], normal: 1, peak: [11,12,13,14,15,16,17] }),
     },
     {
       id: 'chattogram-war-cemetery',
@@ -682,7 +749,8 @@ const chattogram = {
       location: 'Dampara',
       sensory: { noise: 1, crowds: 1, light: 2, unpredictability: 1 },
       description: 'Serene Commonwealth war cemetery maintained by the CWGC with manicured lawns, rose gardens, and WWII graves in a quiet walled compound.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,10,11,12,17,18,19,20,21,22,23], normal: 1, peak: [13,14,15,16] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,10,11,12,17,18,19,20,21,22,23], normal: 1, peak: [13,14,15,16] }),
     },
     {
       id: 'chattogram-ethnological-museum',
@@ -691,7 +759,8 @@ const chattogram = {
       location: 'Agrabad',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Museum showcasing the life and culture of Bangladesh\'s Hill Tracts tribes with life-size dioramas and traditional artefacts.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15] }),
     },
     {
       id: 'chattogram-bayazid-bostami',
@@ -700,7 +769,8 @@ const chattogram = {
       location: 'Nasirabad',
       sensory: { noise: 2, crowds: 3, light: 2, unpredictability: 2 },
       description: 'Sufi shrine complex with a sacred pond housing ancient black softshell turtles, a mosque, and a bustling courtyard visited by pilgrims.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,22,23], normal: 1, peak: [9,10,11,12,13,14,15,16,17,18,19,20,21] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,22,23], normal: 1, peak: [9,10,11,12,13,14,15,16,17,18,19,20,21] }),
     },
     {
       id: 'chattogram-anderkilla-mosque',
@@ -709,7 +779,8 @@ const chattogram = {
       location: 'Anderkilla',
       sensory: { noise: 1, crowds: 2, light: 1, unpredictability: 1 },
       description: 'Mughal-era mosque built in the 17th century with three domes, arched entrances, and a calm prayer hall in Old Chattogram.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,13,14,15,16,17,18,19,20,21,22,23], normal: 1, peak: [6,7,8,9,10,11,12] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,13,14,15,16,17,18,19,20,21,22,23], normal: 1, peak: [6,7,8,9,10,11,12] }),
     },
     {
       id: 'chattogram-sitakunda-eco-park',
@@ -718,7 +789,8 @@ const chattogram = {
       location: 'Sitakunda',
       sensory: { noise: 1, crowds: 2, light: 3, unpredictability: 1 },
       description: 'Hill tract eco park with waterfalls, forest trails, and panoramic viewpoints, popular for day trips from Chattogram.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
     },
     {
       id: 'chattogram-cafe',
@@ -727,7 +799,8 @@ const chattogram = {
       location: 'GEC Circle',
       sensory: { noise: 1, crowds: 1, light: 2, unpredictability: 1 },
       description: 'Quiet independent cafe with air-conditioned seating, pour-over coffee, and a calm atmosphere away from the main road.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15,16] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15,16] }),
     },
   ],
 }
@@ -744,7 +817,8 @@ const coxsbazar = {
       location: 'Laboni Point',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 2 },
       description: 'The world\'s longest natural sea beach stretching 120km, with Laboni Point being the busiest section lined with beach chairs and vendors.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19,20,21] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19,20,21] }),
     },
     {
       id: 'coxsbazar-himchari',
@@ -753,7 +827,8 @@ const coxsbazar = {
       location: 'Himchari',
       sensory: { noise: 1, crowds: 2, light: 3, unpredictability: 1 },
       description: 'Coastal national park with a tiered waterfall cascading into a freshwater pool and hilltop viewpoints over the Bay of Bengal.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
     },
     {
       id: 'coxsbazar-inani-beach',
@@ -762,7 +837,8 @@ const coxsbazar = {
       location: 'Inani',
       sensory: { noise: 1, crowds: 1, light: 3, unpredictability: 1 },
       description: 'Quieter stretch of beach south of Cox\'s Bazar known for its coral stone deposits, clear water, and peaceful atmosphere.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19] }),
     },
     {
       id: 'coxsbazar-marine-drive',
@@ -771,7 +847,8 @@ const coxsbazar = {
       location: 'Cox\'s Bazar-Teknaf',
       sensory: { noise: 2, crowds: 1, light: 3, unpredictability: 1 },
       description: 'Scenic 80km coastal road hugging the Bay of Bengal with panoramic ocean views, watchtowers, and roadside picnic spots.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19] }),
     },
     {
       id: 'coxsbazar-st-martins',
@@ -780,7 +857,8 @@ const coxsbazar = {
       location: 'Teknaf (day trip)',
       sensory: { noise: 1, crowds: 2, light: 3, unpredictability: 2 },
       description: 'Coral island in the Bay of Bengal accessible by ferry from Teknaf, with coconut palms, blue lagoons, and coral reef snorkelling.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,21,22,23], normal: 1, peak: [9,10,11,12,13,14,15,16,17,18,19,20] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,21,22,23], normal: 1, peak: [9,10,11,12,13,14,15,16,17,18,19,20] }),
     },
     {
       id: 'coxsbazar-maheshkhali',
@@ -789,7 +867,8 @@ const coxsbazar = {
       location: 'Maheshkhali',
       sensory: { noise: 1, crowds: 1, light: 3, unpredictability: 2 },
       description: 'Less-developed island with a Hindu temple on a hilltop, salt flats, and a quiet fishing village atmosphere accessible by local ferry.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19] }),
     },
     {
       id: 'coxsbazar-ramu-temples',
@@ -798,7 +877,8 @@ const coxsbazar = {
       location: 'Ramu',
       sensory: { noise: 1, crowds: 1, light: 2, unpredictability: 1 },
       description: 'Ancient Buddhist monastery complex housing a 40-foot reclining Buddha statue, bronze bells, and pagoda-style temples in a serene village setting.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
     },
     {
       id: 'coxsbazar-safari-park',
@@ -807,7 +887,8 @@ const coxsbazar = {
       location: 'Dulahazara',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 2 },
       description: 'Large safari park with Bengal tigers, lions, bears, crocodiles, and monkeys in semi-natural enclosures, plus a guided bus tour.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
+      visitType: 'intense',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
     },
     {
       id: 'coxsbazar-cafe',
@@ -816,7 +897,8 @@ const coxsbazar = {
       location: 'Hotel-Motel Zone',
       sensory: { noise: 1, crowds: 1, light: 2, unpredictability: 1 },
       description: 'Seaside cafe with shaded outdoor seating, fresh juices, and coffee served in a calm garden setting away from the beach crowds.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15,16] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15,16] }),
     },
   ],
 }
@@ -833,7 +915,8 @@ const toronto = {
       location: 'Downtown',
       sensory: { noise: 2, crowds: 4, light: 2, unpredictability: 1 },
       description: 'Iconic 553m tower with observation deck and glass floor. Timed entry, predictable elevator route, panoramic views.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,22,23], normal: 1, peak: [12,13,14,15,16,17] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,22,23], normal: 1, peak: [12,13,14,15,16,17] }),
     },
     {
       id: 'toronto-rom',
@@ -842,7 +925,8 @@ const toronto = {
       location: 'Bloor Street',
       sensory: { noise: 2, crowds: 3, light: 2, unpredictability: 1 },
       description: 'World-class museum with natural history and world culture galleries. Quiet morning hours, bench seating throughout.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,20,21,22,23], normal: 1, peak: [12,13,14,15] }),
+      visitType: 'intense',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,20,21,22,23], normal: 1, peak: [12,13,14,15] }),
     },
     {
       id: 'toronto-islands',
@@ -851,7 +935,8 @@ const toronto = {
       location: 'Lake Ontario',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 2 },
       description: 'Short ferry ride to car-free islands with beaches, gardens, and skyline views. Predictable schedule, calm centre island.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,21,22,23], normal: 1, peak: [11,12,13,14,15,16] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,21,22,23], normal: 1, peak: [11,12,13,14,15,16] }),
     },
     {
       id: 'toronto-distillery',
@@ -860,7 +945,8 @@ const toronto = {
       location: 'Mill Street',
       sensory: { noise: 2, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Pedestrian-only Victorian walking district with galleries, cafes, and artisan shops. Cobblestone streets, predictable layout.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,22,23], normal: 1, peak: [13,14,15,16,17,18] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,22,23], normal: 1, peak: [13,14,15,16,17,18] }),
     },
     {
       id: 'toronto-high-park',
@@ -869,7 +955,8 @@ const toronto = {
       location: 'West End',
       sensory: { noise: 1, crowds: 2, light: 3, unpredictability: 1 },
       description: '400-acre park with trails, gardens, zoo, and cherry blossoms. Paved paths, benches, and Grenadier Cafe.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [13,14,15,16,17] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [13,14,15,16,17] }),
     },
     {
       id: 'toronto-art-gallery',
@@ -878,7 +965,8 @@ const toronto = {
       location: 'Dundas Street',
       sensory: { noise: 1, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Extensive art collection in a Frank Gehry-designed building. Free Wednesday evenings, quiet Galleria Italia.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,20,21,22,23], normal: 1, peak: [12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,20,21,22,23], normal: 1, peak: [12,13,14,15] }),
     },
     {
       id: 'toronto-st-lawrence',
@@ -887,7 +975,8 @@ const toronto = {
       location: 'Front Street',
       sensory: { noise: 3, crowds: 4, light: 2, unpredictability: 2 },
       description: 'Historic farmers market (Sat) and antique market (Sun). Weekday deli counters are calmer with peameal bacon sandwiches.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,17,18,19,20,21,22,23], normal: 1, peak: [9,10,11,12,13,14] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,17,18,19,20,21,22,23], normal: 1, peak: [9,10,11,12,13,14] }),
     },
     {
       id: 'toronto-ravine',
@@ -896,7 +985,8 @@ const toronto = {
       location: 'Don Valley',
       sensory: { noise: 1, crowds: 1, light: 3, unpredictability: 1 },
       description: 'Paved multi-use trail through forested ravine. Predictable route, benches, creek alongside.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,20,21,22,23], normal: 1, peak: [14,15,16,17] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,20,21,22,23], normal: 1, peak: [14,15,16,17] }),
     },
     {
       id: 'toronto-zoo',
@@ -905,7 +995,8 @@ const toronto = {
       location: 'Scarborough',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 2 },
       description: 'Large zoo with indoor pavilions. Quieter right at opening. Panda exhibit, wheelchair accessible.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
     },
     {
       id: 'toronto-cafe',
@@ -914,7 +1005,8 @@ const toronto = {
       location: 'Queen West',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Minimalist cafe with pour-over coffee, soft lighting, and counter seating. Calm weekday mornings.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
     },
   ],
 }
@@ -931,7 +1023,8 @@ const losangeles = {
       location: 'Griffith Park',
       sensory: { noise: 1, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Free observatory perched on Mount Hollywood with planetarium shows and sweeping views of the Hollywood Sign and downtown LA.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,22,23], normal: 1, peak: [13,14,15,16,17,18,19] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,22,23], normal: 1, peak: [13,14,15,16,17,18,19] }),
     },
     {
       id: 'la-hollywood-walk-of-fame',
@@ -940,7 +1033,8 @@ const losangeles = {
       location: 'Hollywood Boulevard',
       sensory: { noise: 4, crowds: 5, light: 3, unpredictability: 2 },
       description: 'Iconic 1.3-mile stretch of Hollywood Blvd with celebrity stars, handprint forecourt, costumed characters, and vintage theatres.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19,20,21] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19,20,21] }),
     },
     {
       id: 'la-universal-studios',
@@ -949,7 +1043,8 @@ const losangeles = {
       location: 'Universal City',
       sensory: { noise: 4, crowds: 5, light: 3, unpredictability: 3 },
       description: 'Working film studio and theme park with the Studio Tour, thrilling rides, and immersive lands like The Wizarding World.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [11,12,13,14,15,16] }),
+      visitType: 'intense',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [11,12,13,14,15,16] }),
     },
     {
       id: 'la-getty-center',
@@ -958,7 +1053,8 @@ const losangeles = {
       location: 'Brentwood',
       sensory: { noise: 1, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Hilltop art museum complex with free admission, tranquil gardens, impressive architecture, and panoramic city views from the tram.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,19,20,21,22,23], normal: 1, peak: [12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,19,20,21,22,23], normal: 1, peak: [12,13,14,15] }),
     },
     {
       id: 'la-venice-beach-boardwalk',
@@ -967,7 +1063,8 @@ const losangeles = {
       location: 'Venice',
       sensory: { noise: 4, crowds: 4, light: 3, unpredictability: 3 },
       description: 'Vibrant oceanfront promenade with skate park, Muscle Beach outdoor gym, street performers, canals, and quirky shops.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [11,12,13,14,15,16,17,18] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [11,12,13,14,15,16,17,18] }),
     },
     {
       id: 'la-santa-monica-pier',
@@ -976,7 +1073,8 @@ const losangeles = {
       location: 'Santa Monica',
       sensory: { noise: 3, crowds: 4, light: 3, unpredictability: 2 },
       description: 'Historic wooden pier with an amusement park, aquarium, restaurants, and wide sandy beach with a dedicated bike path.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [12,13,14,15,16,17,18,19,20,21] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [12,13,14,15,16,17,18,19,20,21] }),
     },
     {
       id: 'la-lacma',
@@ -985,7 +1083,8 @@ const losangeles = {
       location: 'Miracle Mile',
       sensory: { noise: 2, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Los Angeles County Museum of Art featuring the iconic Urban Light installation and extensive collections.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,20,21,22,23], normal: 1, peak: [12,13,14,15,16] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,20,21,22,23], normal: 1, peak: [12,13,14,15,16] }),
     },
     {
       id: 'la-the-broad',
@@ -994,7 +1093,8 @@ const losangeles = {
       location: 'Downtown',
       sensory: { noise: 1, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Contemporary art museum with free timed-entry tickets, Yayoi Kusama Infinity Mirror Rooms, and spacious white galleries.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
     },
     {
       id: 'la-cafe',
@@ -1003,7 +1103,8 @@ const losangeles = {
       location: 'Melrose Place',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Chic neighbourhood cafe with pour-over coffee, pastries, and a calm plant-filled courtyard perfect for a quiet break.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
     },
   ],
 }
@@ -1020,7 +1121,8 @@ const florida = {
       location: 'Orlando',
       sensory: { noise: 4, crowds: 5, light: 3, unpredictability: 3 },
       description: 'The most visited theme park in the world with Cinderella Castle, classic rides, parades, and fireworks over Main Street USA.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19,20,21,22] }),
+      visitType: 'intense',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19,20,21,22] }),
     },
     {
       id: 'florida-universal-orlando',
@@ -1029,7 +1131,8 @@ const florida = {
       location: 'Orlando',
       sensory: { noise: 4, crowds: 5, light: 3, unpredictability: 3 },
       description: 'Two massive theme parks including Islands of Adventure and The Wizarding World of Harry Potter.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19,20,21] }),
+      visitType: 'intense',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19,20,21] }),
     },
     {
       id: 'florida-kennedy-space-center',
@@ -1038,7 +1141,8 @@ const florida = {
       location: 'Cape Canaveral',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 2 },
       description: 'NASA visitor complex with space shuttle Atlantis, rocket gardens, astronaut encounters, and bus tours of launch pads.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
     },
     {
       id: 'florida-everglades',
@@ -1047,7 +1151,8 @@ const florida = {
       location: 'South Florida',
       sensory: { noise: 1, crowds: 2, light: 3, unpredictability: 2 },
       description: 'UNESCO World Heritage wetlands with airboat tours, alligators, manatees, mangrove trails, and the Anhinga boardwalk.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15] }),
     },
     {
       id: 'florida-south-beach',
@@ -1056,7 +1161,8 @@ const florida = {
       location: 'Miami Beach',
       sensory: { noise: 3, crowds: 4, light: 3, unpredictability: 2 },
       description: 'Iconic Art Deco oceanfront district with turquoise water, white sand, lifeguard towers, and Ocean Drive cafes.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [11,12,13,14,15,16,17,18,19,20,21] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [11,12,13,14,15,16,17,18,19,20,21] }),
     },
     {
       id: 'florida-key-west',
@@ -1065,7 +1171,8 @@ const florida = {
       location: 'Florida Keys',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 2 },
       description: 'Southernmost island city with Duval Street, Ernest Hemingway Home, snorkeling reefs, and legendary sunsets at Mallory Square.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19,20,21,22] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19,20,21,22] }),
     },
     {
       id: 'florida-clearwater-beach',
@@ -1074,7 +1181,8 @@ const florida = {
       location: 'Clearwater',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 1 },
       description: 'Gulf Coast beach renowned for powdery white sand, calm warm waters, and spectacular sunset celebrations at Pier 60.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [11,12,13,14,15,16,17,18,19,20,21] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [11,12,13,14,15,16,17,18,19,20,21] }),
     },
     {
       id: 'florida-st-augustine',
@@ -1083,7 +1191,8 @@ const florida = {
       location: 'Northeast Florida',
       sensory: { noise: 2, crowds: 3, light: 2, unpredictability: 1 },
       description: 'The oldest continuously inhabited European-established city in the US, with Spanish colonial architecture and Castillo de San Marcos fortress.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [11,12,13,14,15,16] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [11,12,13,14,15,16] }),
     },
     {
       id: 'florida-cafe',
@@ -1092,7 +1201,8 @@ const florida = {
       location: 'Miami Beach',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Neighbourhood cafe serving single-origin espresso and pour-overs in a relaxed indoor-outdoor setting with tropical plants.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
     },
   ],
 }
@@ -1109,7 +1219,8 @@ const sydney = {
       location: 'Bennelong Point',
       sensory: { noise: 2, crowds: 4, light: 2, unpredictability: 1 },
       description: 'UNESCO World Heritage-listed performing arts centre with iconic sail-shaped roofs, guided tours, and harbour-side restaurants.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19,20,21] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19,20,21] }),
     },
     {
       id: 'sydney-harbour-bridge',
@@ -1118,7 +1229,8 @@ const sydney = {
       location: 'The Rocks',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 2 },
       description: 'Iconic steel arch bridge with a pedestrian walkway, cycle path, and the famous BridgeClimb experience offering panoramic harbour views.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
     },
     {
       id: 'sydney-bondi-beach',
@@ -1127,7 +1239,8 @@ const sydney = {
       location: 'Bondi',
       sensory: { noise: 3, crowds: 4, light: 3, unpredictability: 2 },
       description: 'Australia\'s most famous beach with golden sand, surf breaks, Icebergs ocean pool, and the Bondi to Coogee coastal cliff walk.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18] }),
     },
     {
       id: 'sydney-the-rocks',
@@ -1136,7 +1249,8 @@ const sydney = {
       location: 'Circular Quay',
       sensory: { noise: 3, crowds: 4, light: 2, unpredictability: 2 },
       description: 'Historic cobblestone precinct with convict-era buildings, weekend markets, pubs, and the Museum of Contemporary Art.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [11,12,13,14,15,16,17,18,19,20,21] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,22,23], normal: 1, peak: [11,12,13,14,15,16,17,18,19,20,21] }),
     },
     {
       id: 'sydney-royal-botanic-garden',
@@ -1145,7 +1259,8 @@ const sydney = {
       location: 'Farm Cove',
       sensory: { noise: 1, crowds: 2, light: 3, unpredictability: 1 },
       description: 'Harbour-side botanical gardens with 30 hectares of themed plantings, free guided walks, and postcard views of the Opera House.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [11,12,13,14,15,16] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [11,12,13,14,15,16] }),
     },
     {
       id: 'sydney-manly-beach',
@@ -1154,7 +1269,8 @@ const sydney = {
       location: 'Manly',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 1 },
       description: 'Scenic ferry ride from Circular Quay leads to a relaxed beachside suburb with surf breaks, a palm-lined promenade, and the Manly to Spit walk.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [11,12,13,14,15,16,17] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [11,12,13,14,15,16,17] }),
     },
     {
       id: 'sydney-taronga-zoo',
@@ -1163,7 +1279,8 @@ const sydney = {
       location: 'Mosman',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 2 },
       description: 'Harbour-side zoo with ferry access, Australian native animals, free-flight bird show, and breathtaking views of the Sydney skyline.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15] }),
     },
     {
       id: 'sydney-cafe',
@@ -1172,7 +1289,8 @@ const sydney = {
       location: 'Surry Hills',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Specialty coffee roastery with a calm warehouse interior, single-origin brews, and simple breakfast fare in a tucked-away laneway.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
     },
   ],
 }
@@ -1189,7 +1307,8 @@ const melbourne = {
       location: 'City Centre',
       sensory: { noise: 2, crowds: 3, light: 2, unpredictability: 2 },
       description: 'Famous laneway covered in ever-changing street art and graffiti, with hidden bars and cafes tucked around every corner.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [11,12,13,14,15,16,17] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [11,12,13,14,15,16,17] }),
     },
     {
       id: 'melbourne-royal-botanic-gardens',
@@ -1198,7 +1317,8 @@ const melbourne = {
       location: 'South Yarra',
       sensory: { noise: 1, crowds: 2, light: 3, unpredictability: 1 },
       description: '38-hectare garden sanctuary beside the Yarra River with themed plant collections, lakes, and the serene Guilfoyle\'s Volcano waterfall.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16] }),
     },
     {
       id: 'melbourne-shrine',
@@ -1207,7 +1327,8 @@ const melbourne = {
       location: 'South Yarra',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Imposing war memorial with a stunning interior sanctuary, panoramic city views from the balcony, and reflective courtyards.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [11,12,13,14,15] }),
     },
     {
       id: 'melbourne-queen-vic-market',
@@ -1216,7 +1337,8 @@ const melbourne = {
       location: 'Carlton',
       sensory: { noise: 3, crowds: 4, light: 2, unpredictability: 3 },
       description: 'Historic market spanning two city blocks with fresh produce, deli counters, hot food stalls, and the famous Night Market in summer.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [9,10,11,12,13,14,15,16,17] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [9,10,11,12,13,14,15,16,17] }),
     },
     {
       id: 'melbourne-fed-square-ngv',
@@ -1225,7 +1347,8 @@ const melbourne = {
       location: 'City Centre',
       sensory: { noise: 2, crowds: 3, light: 2, unpredictability: 1 },
       description: 'Cultural hub with the Ian Potter Centre (Australian art) and NGV International across the road, plus open public spaces.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [12,13,14,15,16,17] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [12,13,14,15,16,17] }),
     },
     {
       id: 'melbourne-mcg',
@@ -1234,7 +1357,8 @@ const melbourne = {
       location: 'Richmond',
       sensory: { noise: 3, crowds: 4, light: 3, unpredictability: 2 },
       description: 'Iconic 100,000-seat sports stadium hosting AFL, cricket, and concerts, with guided tours and the National Sports Museum.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19,20,21] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19,20,21] }),
     },
     {
       id: 'melbourne-great-ocean-road',
@@ -1243,7 +1367,8 @@ const melbourne = {
       location: 'Victoria Coast',
       sensory: { noise: 1, crowds: 2, light: 3, unpredictability: 2 },
       description: 'Scenic 243km coastal drive past the Twelve Apostles, rainforest walks at Great Otway National Park, and surf breaks at Bells Beach.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
     },
     {
       id: 'melbourne-cafe',
@@ -1252,7 +1377,8 @@ const melbourne = {
       location: 'Collingwood',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Specialty coffee roaster in a converted warehouse with a serene back room, seasonal menu, and pour-over bar.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
     },
   ],
 }
@@ -1269,7 +1395,8 @@ const brisbane = {
       location: 'South Brisbane',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 1 },
       description: '17-hectare riverside parkland with Streets Beach artificial lagoon, the Wheel of Brisbane, walking paths, and the Nepalese Pagoda.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
     },
     {
       id: 'brisbane-story-bridge',
@@ -1278,7 +1405,8 @@ const brisbane = {
       location: 'Kangaroo Point',
       sensory: { noise: 2, crowds: 2, light: 3, unpredictability: 2 },
       description: 'Historic steel cantilever bridge offering the Story Bridge Adventure Climb for panoramic views of the city and river.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,20,21,22,23], normal: 1, peak: [9,10,11,14,15,16,17] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,20,21,22,23], normal: 1, peak: [9,10,11,14,15,16,17] }),
     },
     {
       id: 'brisbane-river-citycat',
@@ -1287,7 +1415,8 @@ const brisbane = {
       location: 'Brisbane River',
       sensory: { noise: 2, crowds: 2, light: 3, unpredictability: 1 },
       description: 'Fast catamaran ferry service running the length of the Brisbane River with 24 stops connecting riverside precincts.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18,19] }),
     },
     {
       id: 'brisbane-lone-pine',
@@ -1296,7 +1425,8 @@ const brisbane = {
       location: 'Fig Tree Pocket',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 2 },
       description: 'The world\'s oldest and largest koala sanctuary with cuddling experiences, kangaroo feeding, and platypus exhibits.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15] }),
     },
     {
       id: 'brisbane-mount-coot-tha',
@@ -1305,7 +1435,8 @@ const brisbane = {
       location: 'Mount Coot-tha',
       sensory: { noise: 1, crowds: 2, light: 3, unpredictability: 1 },
       description: 'Hilltop lookout offering 360-degree city and mountain views, adjacent botanic gardens with themed plant collections, and walking trails.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
     },
     {
       id: 'brisbane-gold-coast',
@@ -1314,7 +1445,8 @@ const brisbane = {
       location: 'Gold Coast',
       sensory: { noise: 3, crowds: 4, light: 3, unpredictability: 2 },
       description: 'One-hour drive to Australia\'s beach playground with world-class surf breaks and theme parks like Dreamworld and Sea World.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18] }),
+      visitType: 'intense',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18] }),
     },
     {
       id: 'brisbane-cafe',
@@ -1323,7 +1455,8 @@ const brisbane = {
       location: 'City Centre',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Hidden heritage-listed laneway cafe serving exceptional single-origin coffee in a minimalist exposed-brick space with no music.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
     },
   ],
 }
@@ -1340,7 +1473,8 @@ const perth = {
       location: 'Kings Park',
       sensory: { noise: 1, crowds: 2, light: 3, unpredictability: 1 },
       description: '400-hectare inner-city parkland with the Western Australian Botanic Garden and sweeping Swan River views.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16] }),
     },
     {
       id: 'perth-cottesloe-beach',
@@ -1349,7 +1483,8 @@ const perth = {
       location: 'Cottesloe',
       sensory: { noise: 2, crowds: 3, light: 3, unpredictability: 1 },
       description: 'Perth\'s most iconic beach with a sheltered swimming enclosure, the Indiana Teahouse, and spectacular Indian Ocean sunsets.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18] }),
     },
     {
       id: 'perth-fremantle',
@@ -1358,7 +1493,8 @@ const perth = {
       location: 'Fremantle',
       sensory: { noise: 2, crowds: 3, light: 2, unpredictability: 2 },
       description: 'Historic port city with the UNESCO-listed Fremantle Prison, bustling Fremantle Markets, Victorian architecture, and the Maritime Museum.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17] }),
     },
     {
       id: 'perth-rottnest-island',
@@ -1367,7 +1503,8 @@ const perth = {
       location: 'Indian Ocean',
       sensory: { noise: 1, crowds: 3, light: 3, unpredictability: 2 },
       description: 'Car-free island paradise reachable by ferry, home to the adorable quokka, with 63 secluded beaches, snorkelling reefs, and bike paths.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15,16,17,18] }),
     },
     {
       id: 'perth-elizabeth-quay',
@@ -1376,7 +1513,8 @@ const perth = {
       location: 'City Centre',
       sensory: { noise: 2, crowds: 2, light: 3, unpredictability: 1 },
       description: 'Modern waterfront precinct with a large artificial inlet, public art installations, playgrounds, and restaurants over the Swan River.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [11,12,13,14,15,16,17,18] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,21,22,23], normal: 1, peak: [11,12,13,14,15,16,17,18] }),
     },
     {
       id: 'perth-mint',
@@ -1385,7 +1523,8 @@ const perth = {
       location: 'East Perth',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Historic mint still producing gold coins and bars, offering guided tours, live gold-pouring demonstrations, and the world\'s largest gold coin.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15] }),
+      visitType: 'moderate',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,18,19,20,21,22,23], normal: 1, peak: [10,11,12,13,14,15] }),
     },
     {
       id: 'perth-cafe',
@@ -1394,7 +1533,8 @@ const perth = {
       location: 'City Centre',
       sensory: { noise: 1, crowds: 2, light: 2, unpredictability: 1 },
       description: 'Specialty coffee roaster in a converted heritage warehouse with high ceilings, bench seating, and a calm atmosphere.',
-      crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
+      visitType: 'light',
+    crowdByHour: curve({ quiet: [0,1,2,3,4,5,6,7,8,9,18,19,20,21,22,23], normal: 1, peak: [10,11,14,15] }),
     },
   ],
 }

@@ -5,7 +5,7 @@
 //   - expect a JSON itinerary back
 // For the MVP, we run deterministic rules that mirror the prompt's intent.
 
-import { ACTIVITIES, getActivityById } from '../data/activities.js'
+import { ACTIVITIES, getActivityById, VISIT_HOURS } from '../data/activities.js'
 import { activityLoad, isRest, dayLoad, capForProfile } from './sensory.js'
 import { suitability, crowdAt } from './crowd.js'
 import { climateCategory } from './climate.js'
@@ -97,7 +97,7 @@ function pickBestN({ pool, profile, preferences, modifiers, cap, maxItems, mustI
       const rest = ranked.find(r => isRest(r.activity) && !usedIds.has(r.activity.id))
       if (rest) {
         usedIds.add(rest.activity.id)
-        picked.push({ activityId: rest.activity.id, hours: 1 })
+        picked.push({ activityId: rest.activity.id, hours: visitHours(rest.activity) })
         categories.add(rest.activity.category)
         sinceRest = 0
         load = dayLoad(picked)
@@ -106,7 +106,7 @@ function pickBestN({ pool, profile, preferences, modifiers, cap, maxItems, mustI
     const projected = load + activityLoad(cand.activity)
     if (projected > cap) continue
     usedIds.add(cand.activity.id)
-    picked.push({ activityId: cand.activity.id, hours: 1 })
+    picked.push({ activityId: cand.activity.id, hours: visitHours(cand.activity) })
     categories.add(cand.activity.category)
     sinceRest += 1
     load = dayLoad(picked)
@@ -340,10 +340,10 @@ export async function organiseItinerary({ date, items, profile, places, trip, mo
   others.sort((a, b) => activityLoad(a.activity) - activityLoad(b.activity))
 
   const startHour = computeStartHour(profile, modifiers)
-  const endHour = trip?.duration === 'full' ? 18 : trip?.duration === 'half' ? 14 : trip?.duration === 'short' ? 12 : 20
+  const endHour = trip?.duration === 'full' ? DAY_END_FULL : trip?.duration === 'half' ? 14 : trip?.duration === 'short' ? 12 : DAY_END_FULL
   const totalHours = endHour - startHour
   const slotCount = others.length
-  const hoursPerSlot = slotCount > 0 ? Math.max(1, Math.floor(totalHours / (slotCount + (rests.length > 0 ? 1 : 0)))) : 2
+  const hoursPerSlot = Math.min(2, slotCount > 0 ? Math.max(1, Math.floor(totalHours / (slotCount + (rests.length > 0 ? 1 : 0)))) : 2)
 
   const ordered = []
   const restEvery = profile?.rest === 'open'
@@ -367,7 +367,7 @@ export async function organiseItinerary({ date, items, profile, places, trip, mo
     }
     if (bestHour < cursor) cursor = bestHour
     ordered.push(schedule(item, cursor, hours, reasoningFor(item.activity, profile, cursor)))
-    cursor += hours + 0.5
+    cursor += hours
     sinceRest += 1
   }
   for (const rest of rests) {
@@ -396,7 +396,7 @@ export async function organiseItinerary({ date, items, profile, places, trip, mo
         : ''
 
   return {
-    items: ordered,
+    items: fillDayGaps(ordered, startHour, endHour, profile),
     notes: (load > cap * 0.8
       ? `Loaded day (${load}/${cap}). Consider removing one item or adding a longer rest.`
       : `Comfortable load (${load}/${cap}).`) + climateNote,
@@ -428,10 +428,10 @@ export async function generateItinerary({ date, profile, preferences = {}, place
   })
 
   // Determine the end hour based on trip duration.
-  const endHour = trip?.duration === 'full' ? 18 : trip?.duration === 'half' ? 14 : trip?.duration === 'short' ? 12 : 20
+  const endHour = trip?.duration === 'full' ? DAY_END_FULL : trip?.duration === 'half' ? 14 : trip?.duration === 'short' ? 12 : DAY_END_FULL
   const totalHours = endHour - startHour
   const slotCount = others.length
-  const hoursPerSlot = slotCount > 0 ? Math.max(1, Math.floor(totalHours / (slotCount + (rests.length > 0 ? 1 : 0)))) : 2
+  const hoursPerSlot = Math.min(2, slotCount > 0 ? Math.max(1, Math.floor(totalHours / (slotCount + (rests.length > 0 ? 1 : 0)))) : 2)
 
   const ordered = []
   const restEvery = profile?.rest === 'open'
@@ -460,7 +460,7 @@ export async function generateItinerary({ date, profile, preferences = {}, place
     if (bestHour < cursor) cursor = bestHour
     const reasoning = act ? reasoningFor(act, profile, bestHour) : 'matches your profile'
     ordered.push(schedule(item, cursor, hours, reasoning))
-    cursor += hours + 0.5
+    cursor += hours
     sinceRest += 1
   }
   for (const rest of rests) {
@@ -507,7 +507,7 @@ export async function generateItinerary({ date, profile, preferences = {}, place
         : ''
 
   return {
-    items: ordered,
+    items: fillDayGaps(ordered, startHour, endHour, profile),
     notes: `Auto-generated from your profile. Total load ${dayLoad(ordered)}/${cap}.${toleranceNote}${climateNote}`,
   }
 }
@@ -563,9 +563,9 @@ export async function rankCandidates({ profile, preferences = {}, places, trip, 
 export function scheduleItems({ items: slotItems, profile, trip, places }) {
   if (!slotItems || !slotItems.length) return []
   const startHour = computeStartHour(profile, [])
-  const endHour = trip?.duration === 'full' ? 18 : trip?.duration === 'half' ? 14 : trip?.duration === 'short' ? 12 : 20
+  const endHour = trip?.duration === 'full' ? DAY_END_FULL : trip?.duration === 'half' ? 14 : trip?.duration === 'short' ? 12 : DAY_END_FULL
   const totalHours = Math.max(1, endHour - startHour)
-  const hoursPerSlot = Math.max(1, Math.floor(totalHours / slotItems.length))
+  const hoursPerSlot = Math.min(2, Math.max(1, Math.floor(totalHours / slotItems.length)))
 
   const result = []
   let cursor = startHour
@@ -592,25 +592,28 @@ export function scheduleItems({ items: slotItems, profile, trip, places }) {
       comfort: 0,
       reasoning,
     })
-    cursor += hours + 0.5
+    cursor += hours
   }
 
-  return result
+  return fillDayGaps(result, startHour, endHour, profile)
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────
 
+const DAY_START = 6
+const DAY_END_FULL = 22
+
 function computeStartHour(profile, modifiers) {
-  let h = profile?.pace === 'slow' ? 10 : 9
-  if (modifiers.includes('earlier')) h = Math.max(8, h - 2)
-  if (modifiers.includes('later')) h = Math.min(13, h + 2)
+  let h = DAY_START
+  if (modifiers.includes('earlier')) h = Math.max(5, h - 1)
+  if (modifiers.includes('later')) h = Math.min(8, h + 2)
   return h
 }
 
 function computeMaxItems(modifiers, profile) {
   const tolerance = profile?.tolerance ?? 3
-  let n = Math.min(5, Math.max(1, Math.round(tolerance * 0.8)))
-  if (modifiers.includes('shorter')) n = Math.max(1, n - 1)
+  let n = Math.min(8, Math.max(2, Math.round(tolerance * 1.2)))
+  if (modifiers.includes('shorter')) n = Math.max(1, n - 2)
   return n
 }
 
@@ -632,6 +635,93 @@ function schedule(item, startHour, hours, reasoning) {
     comfort: 0,
     reasoning,
   }
+}
+
+/** Get the default hours for an activity based on its visitType. */
+function visitHours(activity) {
+  if (!activity || !activity.visitType) return 1.5
+  return VISIT_HOURS[activity.visitType] || 1.5
+}
+
+/**
+ * Build a complete day structure around the user's selected activities.
+ * Inserts morning prep, transit between activities, meals, and evening wind-down
+ * so the itinerary covers the full day from start to end hour.
+ */
+function fillDayGaps(ordered, startHour, endHour, profile) {
+  if (!ordered.length) return ordered
+  const result = []
+  let cursor = startHour
+  const needsScheduledBreaks = profile?.rest !== 'open'
+
+  // 1. Morning: wake up, get ready, breakfast
+  if (cursor <= 8) {
+    const prepEnd = Math.min(cursor + 1, 8)
+    result.push(schedule({ activityId: 'getting-ready', hours: prepEnd - cursor }, cursor, prepEnd - cursor, 'wake up and get ready'))
+    cursor = prepEnd
+    result.push(schedule({ activityId: 'meal-breakfast', hours: 0.5 }, cursor, 0.5, 'breakfast'))
+    cursor += 0.5
+  }
+
+  // 2. Lay out activities with transit between each
+  for (let i = 0; i < ordered.length; i++) {
+    const slot = ordered[i]
+
+    // Transit to this activity
+    if (i === 0) {
+      // First activity: simple transit from current location
+      result.push(schedule({ activityId: 'travel-transit', hours: 0.5 }, cursor, 0.5, 'travel'))
+      cursor += 0.5
+    } else {
+      // Subsequent activities: transit + reset from previous
+      result.push(schedule({ activityId: 'travel-transit', hours: 0.5 }, cursor, 0.5, 'travel'))
+      cursor += 0.5
+    }
+
+    // The activity itself (use its hours but schedule it at current cursor)
+    const actHours = slot.hours || 1
+    result.push(schedule(
+      { activityId: slot.activityId, hours: actHours },
+      cursor, actHours, slot.reasoning || ''
+    ))
+    cursor += actHours
+  }
+
+  // 3. Lunch around noon
+  if (needsScheduledBreaks && cursor <= 12.5 && endHour > 13) {
+    const lunchHr = Math.max(cursor, 12)
+    const lunchEnd = lunchHr + 1
+    if (lunchEnd <= endHour) {
+      if (lunchHr > cursor) {
+        result.push(schedule({ activityId: 'travel-transit', hours: lunchHr - cursor }, cursor, lunchHr - cursor, 'travel'))
+      }
+      result.push(schedule({ activityId: 'meal-lunch', hours: 1 }, lunchHr, 1, 'lunch break'))
+      cursor = lunchEnd
+    }
+  }
+
+  // 4. Dinner in the evening
+  if (needsScheduledBreaks && cursor <= 18 && endHour > 19) {
+    const dinnerHr = Math.max(cursor, 18)
+    const dinnerEnd = dinnerHr + 1
+    if (dinnerEnd <= endHour) {
+      if (dinnerHr > cursor) {
+        result.push(schedule({ activityId: 'travel-transit', hours: dinnerHr - cursor }, cursor, dinnerHr - cursor, 'travel'))
+      }
+      result.push(schedule({ activityId: 'meal-dinner', hours: 1 }, dinnerHr, 1, 'dinner break'))
+      cursor = dinnerEnd
+    }
+  }
+
+  // 5. Evening wind-down
+  if (cursor < endHour) {
+    const remaining = Math.round((endHour - cursor) * 10) / 10
+    if (remaining > 0) {
+      result.push(schedule({ activityId: 'travel-transit', hours: remaining }, cursor, remaining, 'evening wind-down / head back'))
+    }
+  }
+
+  return result
 }
 
 function reasoningFor(activity, profile, startHour) {

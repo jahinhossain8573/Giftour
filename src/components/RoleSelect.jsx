@@ -30,7 +30,7 @@ export default function RoleSelect({ onRole }) {
   return (
     <div className="role-select">
       <div className="role-select-header">
-        <h1>Giftour</h1>
+        <img src="/favicon.png" alt="Giftour" className="logo" />
         <p className="muted">Travel planning, tuned to you.</p>
       </div>
       <div className="role-select-cards">
