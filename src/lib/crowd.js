@@ -2,7 +2,15 @@
 // (Google Popular Times, TripAdvisor, etc.). For the MVP they're derived from
 // the static sample data.
 
-import { ACTIVITIES, getActivityById } from '../data/activities.js'
+import { ACTIVITIES } from '../data/activities.js'
+import { getActivityById as getActivityByIdFromPool } from '../data/activities.js'
+
+// Re-export with the original signature: callers that don't know about the
+// pool keep working unchanged. Places that have a pool (LLM, ItineraryEditor
+// when it has a day) should use this and pass the pool explicitly.
+export function getActivityById(id, pool) {
+  return getActivityByIdFromPool(id, pool || ACTIVITIES)
+}
 
 // Predicted crowd at a given hour (0-23) for an activity.
 export function crowdAt(activity, hour) {
@@ -47,4 +55,4 @@ export function bestWindow(activity) {
   return best
 }
 
-export { ACTIVITIES, getActivityById }
+export { ACTIVITIES }

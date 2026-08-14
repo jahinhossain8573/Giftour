@@ -6,9 +6,9 @@
 import { budgetStatus, dayLoad, AXES, axisLabels } from '../lib/sensory.js'
 import { getActivityById } from '../data/activities.js'
 
-export default function SensoryBudget({ items, profile }) {
+export default function SensoryBudget({ items, profile, places }) {
   const status = budgetStatus(items, profile)
-  const perAxis = axisBreakdown(items)
+  const perAxis = axisBreakdown(items, places)
   return (
     <section className="budget" aria-label="Sensory budget for the day">
       <header className="budget-header">
@@ -39,12 +39,12 @@ export default function SensoryBudget({ items, profile }) {
   )
 }
 
-function axisBreakdown(items) {
+function axisBreakdown(items, places) {
   // Per-axis load = max single activity's load on that axis (worst spike).
   // Easier for users to reason about than sum-of-axis-load, which is less intuitive.
   const out = { noise: 0, crowds: 0, light: 0, unpredictability: 0 }
   for (const it of items) {
-    const a = getActivityById(it.activityId)
+    const a = getActivityById(it.activityId, places)
     if (!a?.sensory) continue
     for (const axis of AXES) {
       if (a.sensory[axis] > out[axis]) out[axis] = a.sensory[axis]

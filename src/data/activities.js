@@ -112,6 +112,14 @@ export const ACTIVITIES = [
   },
 ]
 
-export function getActivityById(id) {
+export function getActivityById(id, pool) {
+  // If a pool is supplied (e.g. the city's landmarks merged with the generic
+  // catalogue), look in there first, then fall back to the generic catalogue.
+  // This keeps ItineraryEditor and SensoryBudget working with whatever the
+  // LLM put on the day, regardless of which city it came from.
+  if (pool && pool !== ACTIVITIES) {
+    const hit = pool.find(a => a.id === id)
+    if (hit) return hit
+  }
   return ACTIVITIES.find(a => a.id === id)
 }

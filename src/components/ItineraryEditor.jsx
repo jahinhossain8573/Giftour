@@ -9,12 +9,15 @@ import { suitability, suitabilityAtHour, crowdAt } from '../lib/crowd.js'
 
 const hourLabel = (h) => `${String(Math.floor(h)).padStart(2, '0')}:00`
 
-export default function ItineraryEditor({ date, items, profile, onChange, onLogFeedback }) {
+export default function ItineraryEditor({ date, items, profile, places, onChange, onLogFeedback }) {
   const [showAdd, setShowAdd] = useState(false)
   const [filter, setFilter] = useState('')
+  // Use the destination's places pool when available; fall back to the generic
+  // catalogue so the add-panel still offers calm baseline options.
+  const pool = places || ACTIVITIES
 
   const add = (activityId) => {
-    const activity = getActivityById(activityId)
+    const activity = getActivityById(activityId, pool)
     if (!activity) return
     const last = items[items.length - 1]
     const startHour = last ? Math.min(20, (last.startHour || 9) + (last.hours || 1)) : 9
@@ -43,7 +46,7 @@ export default function ItineraryEditor({ date, items, profile, onChange, onLogF
     onLogFeedback({ date, activityId: it.activityId, comfort })
   }
 
-  const filtered = ACTIVITIES.filter(a =>
+  const filtered = pool.filter(a =>
     !filter || a.name.toLowerCase().includes(filter.toLowerCase()) || a.category.includes(filter.toLowerCase())
   )
 
@@ -92,7 +95,7 @@ export default function ItineraryEditor({ date, items, profile, onChange, onLogF
       ) : (
         <ol className="slot-list">
           {items.map(it => {
-            const activity = getActivityById(it.activityId)
+            const activity = getActivityById(it.activityId, pool)
             if (!activity) return null
             const fit = suitabilityAtHour(activity, profile, it.startHour)
             const crowd = crowdAt(activity, it.startHour)

@@ -5,15 +5,11 @@ import Calendar from './components/Calendar.jsx'
 import ItineraryEditor from './components/ItineraryEditor.jsx'
 import SensoryBudget from './components/SensoryBudget.jsx'
 import AiPanel from './components/AiPanel.jsx'
+import AiItineraryPage from './components/AiItineraryPage.jsx'
 import TripSetup from './components/TripSetup.jsx'
 import { loadState, saveState, clearState } from './lib/storage.js'
 import { applyFeedback } from './lib/profile.js'
-import { generateItinerary } from './lib/llm.js'
-
-function todayISO() {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
+import { resolvePlaces } from './lib/places.js'
 
 function EmptyState() {
   return (
@@ -81,34 +77,44 @@ export default function App() {
   // Per-date trip metadata (destination, duration, notes).
   const trip = selected ? state.trips?.[selected] : null
 
-  // When the user first finishes trip setup, ask the AI to draft a plan
-  // and apply it automatically. We track this with a flag so a re-render
-  // (e.g. from feedback) doesn't re-trigger the auto-generate.
-  const [autoGenFor, setAutoGenFor] = useState(null)
+  // Resolve the destination into a pool of real places.
+  // Now async — calls Google Places API with fallback to static data.
+  const [places, setPlaces] = useState({ places: [], matched: null, source: null })
+  const [placesLoading, setPlacesLoading] = useState(false)
+  // Track whether we've started resolving places for the current trip.
+  const [placesStarted, setPlacesStarted] = useState(null)
   useEffect(() => {
-    if (!trip || !selected) return
-    if (autoGenFor === selected) return
-    // Only auto-generate if the day is currently empty — don't blow away edits.
-    const existing = state.itineraries[selected] || []
-    if (existing.length > 0) return
+    if (!trip?.destination) {
+      setPlaces({ places: [], matched: null, source: null })
+      setPlacesStarted(null)
+      return
+    }
     let cancelled = false
+    setPlacesLoading(true)
+    setPlacesStarted(trip.destination)
     ;(async () => {
       try {
-        const result = await generateItinerary({
-          date: selected, profile: state.profile, preferences, trip,
-        })
-        if (cancelled) return
-        setItems(result.items)
-      } catch (e) { /* surfaced in the AI panel */ }
-      setAutoGenFor(selected)
+        const result = await resolvePlaces(trip.destination)
+        if (!cancelled) setPlaces(result)
+      } catch {
+        if (!cancelled) setPlaces({ places: [], matched: null, source: null })
+      } finally {
+        if (!cancelled) setPlacesLoading(false)
+      }
     })()
     return () => { cancelled = true }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trip, selected])
+  }, [trip?.destination])
+
+  // Wait for places to resolve before rendering the AI page.
+  const placesReady = !trip?.destination || (placesStarted === trip?.destination && !placesLoading)
 
   const saveTrip = (meta) => {
     setState(s => ({ ...s, trips: { ...(s.trips || {}), [selected]: meta } }))
-    setAutoGenFor(null) // allow the next effect run to re-generate
+  }
+
+  // Called by AiItineraryPage when the user clicks "Apply plan".
+  const onAiApply = (newItems) => {
+    setItems(newItems)
   }
 
   const logFeedback = (entry) => {
@@ -189,12 +195,41 @@ export default function App() {
               onSave={(meta) => { saveTrip(meta); /* keeps selected as-is */ }}
               onCancel={() => setSelected(null)}
             />
+          ) : items.length === 0 ? (
+            !placesReady ? (
+              <section className="ai-page ai-page-loading" role="status">
+                <div className="ai-page-skeleton">
+                  <div className="skeleton skeleton-title" />
+                  <div className="skeleton skeleton-line" />
+                  <div className="skeleton skeleton-line short" />
+                </div>
+                <p className="muted small">Looking up places in {trip.destination}…</p>
+              </section>
+            ) : (
+              <AiItineraryPage
+                date={selected}
+                profile={state.profile}
+                preferences={preferences}
+                trip={trip}
+                places={places.places}
+                onApply={onAiApply}
+              />
+            )
           ) : (
             <>
               <div className="trip-banner">
                 <div>
                   <strong>{trip.destination}</strong>
                   <span className="muted"> · {durationLabel(trip.duration)}{trip.notes ? ` · ${trip.notes}` : ''}</span>
+                  {places.matched && places.source === 'google' && (
+                    <span className="muted small"> · using Google Maps data</span>
+                  )}
+                  {places.matched && places.source === 'static' && (
+                    <span className="muted small"> · using curated {places.matched} landmarks</span>
+                  )}
+                  {(!places.matched || places.source === 'generic') && (
+                    <span className="muted small"> · no curated landmarks for this city — using default calm picks</span>
+                  )}
                 </div>
                 <button className="btn btn-ghost small" onClick={() => saveTrip(null)}>Edit trip</button>
               </div>
@@ -202,16 +237,18 @@ export default function App() {
                 date={selected}
                 items={items}
                 profile={state.profile}
+                places={places.places}
                 onChange={setItems}
                 onLogFeedback={logFeedback}
               />
-              <SensoryBudget items={items} profile={state.profile} />
+              <SensoryBudget items={items} profile={state.profile} places={places.places} />
               <AiPanel
                 date={selected}
                 items={items}
                 profile={state.profile}
                 preferences={preferences}
                 trip={trip}
+                places={places.places}
                 onApply={setItems}
               />
             </>
