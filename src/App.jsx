@@ -62,37 +62,37 @@ function durationLabel(d) {
 }
 
 export default function App() {
-  // ─── All hooks first, before any early returns ────────────────────────
+  // ─── State ────────────────────────────────────────────────────────────
   const [state, setState] = useState(() => loadState())
   const [selected, setSelected] = useState(null)
   const [quizOpen, setQuizOpen] = useState(false)
 
-  // Places resolution (async).
   const [places, setPlaces] = useState({ places: [], matched: null, source: null })
   const [placesLoading, setPlacesLoading] = useState(false)
   const [placesStarted, setPlacesStarted] = useState(null)
 
-  // Persist state whenever it changes.
+  // ─── Derived values ───────────────────────────────────────────────────
+  const trip = selected ? state.trips?.[selected] : null
+  const items = state.itineraries[selected] || []
+
+  // ─── Side effects ─────────────────────────────────────────────────────
   useEffect(() => { saveState(state) }, [state])
 
-  // Profile refinement.
-  const refinedProfile = useMemo(
-    () => applyFeedback(state.profile, state.feedbackLog),
-    [state.profile, state.feedbackLog]
-  )
-
-  // Persist refined tolerances back into the profile.
   useEffect(() => {
-    if (!state.profile || !refinedProfile) return
-    if (typeof refinedProfile.tolerance !== 'number') return
-    if (refinedProfile.tolerance !== state.profile.tolerance) {
-      setState(s => ({ ...s, profile: { ...s.profile, ...refinedProfile } }))
+    const dest = trip?.destination
+    const name = state.profile?.name
+    if (state.role === 'companion') {
+      document.title = 'Giftour — Companion'
+    } else if (dest && name) {
+      document.title = `Giftour — ${dest}`
+    } else if (name) {
+      document.title = `Giftour — ${name}`
+    } else {
+      document.title = 'Giftour'
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refinedProfile.tolerance])
+  }, [state.role, trip?.destination, state.profile?.name])
 
   // Resolve places when the destination changes.
-  const trip = selected ? state.trips?.[selected] : null
   useEffect(() => {
     if (!trip?.destination) {
       setPlaces({ places: [], matched: null, source: null })
@@ -117,8 +117,20 @@ export default function App() {
 
   const placesReady = !trip?.destination || (placesStarted === trip?.destination && !placesLoading)
 
-  // Derived values.
-  const items = state.itineraries[selected] || []
+  // Profile refinement.
+  const refinedProfile = useMemo(
+    () => applyFeedback(state.profile, state.feedbackLog),
+    [state.profile, state.feedbackLog]
+  )
+
+  useEffect(() => {
+    if (!state.profile || !refinedProfile) return
+    if (typeof refinedProfile.tolerance !== 'number') return
+    if (refinedProfile.tolerance !== state.profile.tolerance) {
+      setState(s => ({ ...s, profile: { ...s.profile, ...refinedProfile } }))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refinedProfile.tolerance])
 
   // Preferences from feedback log.
   const preferences = useMemo(() => {
@@ -155,9 +167,8 @@ export default function App() {
     setState(s => ({ ...s, feedbackLog: [...s.feedbackLog, { ...entry, at: new Date().toISOString() }] }))
   }
 
-  // ─── Early returns (only JSX, after all hooks) ───────────────────────
+  // ─── Early returns ───────────────────────────────────────────────────
 
-  // Role selection (first launch).
   if (!state.role) {
     return (
       <div className="app">
@@ -174,7 +185,6 @@ export default function App() {
     )
   }
 
-  // Companion view.
   if (state.role === 'companion') {
     return (
       <CompanionView
@@ -184,7 +194,6 @@ export default function App() {
     )
   }
 
-  // Quiz / profile setup.
   if (!state.profile || quizOpen) {
     return (
       <div className="app">
