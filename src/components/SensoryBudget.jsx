@@ -25,7 +25,7 @@ export default function SensoryBudget({ items, profile, places }) {
         {' · '}
         {status.remaining >= 0 ? `${status.remaining} remaining` : `${Math.abs(status.remaining)} over`}
       </p>
-      <p className="muted small">{advice(status, profile)}</p>
+      <p className="muted small">{advice(status, profile, items)}</p>
       <ul className="axis-list">
         {AXES.map(axis => (
           <li key={axis} className="axis-row">
@@ -53,9 +53,9 @@ function axisBreakdown(items, places) {
   return out
 }
 
-function advice(status, profile) {
+function advice(status, profile, items) {
   if (status.over) return 'You\'re over your daily cap. Remove a high-load activity or add a rest break.'
   if (status.percent >= 80) return 'You\'re close to your cap. Keep the rest of the day quiet if you can.'
-  if (items.length === 0) return 'Pick a few activities and we\'ll keep an eye on your budget.'
+  if (!items || items.length === 0) return 'Pick a few activities and we\'ll keep an eye on your budget.'
   return 'Day looks manageable. Stay hydrated and take breaks as planned.'
 }

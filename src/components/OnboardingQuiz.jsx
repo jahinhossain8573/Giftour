@@ -27,6 +27,10 @@ const STEPS = [
     { value: 'scheduled', label: 'Scheduled breaks built into the day' },
     { value: 'open', label: 'Open time, I\'ll decide' },
   ] },
+  { id: 'independence', title: 'Travel Style', body: 'Do you prefer exploring on your own or going with a guide?', kind: 'choice', options: [
+    { value: 'independent', label: 'Independent' },
+    { value: 'dependent', label: 'Dependent' },
+  ] },
 ]
 
 const SCALE_LABELS = ['Very difficult', 'Difficult', 'Manageable', 'Comfortable', 'Very comfortable']
@@ -58,6 +62,7 @@ export default function OnboardingQuiz({ onComplete }) {
         pace: answers.pace || 'balanced',
         interests: answers.interests || [],
         rest: answers.rest || 'scheduled',
+        independence: answers.independence || 'independent',
       })
       return
     }

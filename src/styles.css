@@ -130,11 +130,21 @@ body {
 .calendar-cell:hover { background: #efe9df; }
 .calendar-cell.empty { background: transparent; cursor: default; }
 .calendar-cell.today { border-color: var(--primary); }
+.calendar-cell.disabled { opacity: 0.4; cursor: default; }
 .calendar-cell.selected { background: var(--primary); color: var(--primary-ink); }
-.calendar-cell.selected .calendar-dot { background: var(--primary-ink); }
 .calendar-cell:focus-visible { outline: 3px solid var(--primary); outline-offset: 1px; }
 .calendar-day { font-size: 0.95rem; }
-.calendar-dot { width: 6px; height: 6px; background: var(--primary); border-radius: 50%; margin-top: 2px; }
+.calendar-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 7px;
+  height: 7px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.calendar-cell.selected .calendar-dot { background: var(--primary-ink); box-shadow: 0 0 0 2px var(--primary); }
 
 /* Empty state shown after the quiz, prompting the user to pick a date. */
 .empty-state {
@@ -367,7 +377,7 @@ body {
 .quiz-choice.selected { background: #d8eae7; border-color: var(--primary); }
 .quiz-nav { display: flex; justify-content: space-between; margin-top: 24px; }
 
-/* ── AI Itinerary Page ──────────────────────────────────────────────── */
+/* ── AI Itinerary Page — shared states ──────────────────────────────── */
 
 .ai-page {
   background: var(--surface);
@@ -378,8 +388,6 @@ body {
   display: grid;
   gap: 16px;
 }
-
-/* Loading skeleton */
 .ai-page-loading {
   display: flex;
   flex-direction: column;
@@ -411,8 +419,6 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .skeleton { animation: none; background: var(--surface-2); }
 }
-
-/* Error state */
 .ai-page-error {
   display: flex;
   flex-direction: column;
@@ -435,8 +441,6 @@ body {
   margin-bottom: 8px;
 }
 .ai-page-error h2 { margin: 0; font-size: 1.2rem; }
-
-/* Applied confirmation */
 .ai-page-applied {
   display: flex;
   flex-direction: column;
@@ -460,74 +464,106 @@ body {
 }
 .ai-page-applied h2 { margin: 0; font-size: 1.2rem; }
 
-/* Timeline */
-.ai-timeline {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 0;
-  position: relative;
+/* ── AI Itinerary Page — Candidate card grid ───────────────────────── */
+
+.candidate-counter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 }
-.ai-timeline::before {
-  content: '';
-  position: absolute;
-  left: 44px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: var(--line);
-}
-.ai-timeline-item {
-  display: grid;
-  grid-template-columns: 40px 48px 1fr;
-  gap: 12px;
-  align-items: start;
-  padding: 12px 0;
-  position: relative;
-}
-.ai-timeline-marker {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--primary);
-  border: 3px solid var(--surface);
-  box-shadow: 0 0 0 2px var(--primary);
-  justify-self: center;
-  margin-top: 4px;
-  z-index: 1;
-}
-.ai-timeline-item.is-rest .ai-timeline-marker {
-  background: var(--rest);
-  box-shadow: 0 0 0 2px var(--rest);
-}
-.ai-timeline-time {
+.candidate-counter-warn {
+  color: var(--danger);
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--muted);
-  padding-top: 2px;
-  white-space: nowrap;
 }
-.ai-timeline-content {
+
+.candidate-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.candidate-card {
+  appearance: none;
+  border: 2px solid var(--line);
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: var(--ink);
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  position: relative;
+}
+.candidate-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(46, 111, 106, 0.1);
+}
+.candidate-card.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary), 0 2px 8px rgba(46, 111, 106, 0.15);
+}
+.candidate-card:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.candidate-photo {
+  width: 100%;
+  height: 120px;
+  overflow: hidden;
   background: var(--surface-2);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 12px;
+}
+.candidate-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.candidate-body {
+  padding: 10px 12px;
   display: grid;
   gap: 4px;
 }
-.ai-timeline-header {
+.candidate-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
-.ai-timeline-header strong { font-size: 0.95rem; }
-.ai-timeline-meta { font-size: 0.8rem; }
-.ai-timeline-reason {
-  margin: 4px 0 0;
-  font-style: italic;
-  line-height: 1.4;
+.candidate-header strong { font-size: 0.9rem; }
+.candidate-meta { font-size: 0.78rem; }
+.candidate-desc {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.candidate-check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--primary-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 
 /* Footer actions */
@@ -537,50 +573,66 @@ body {
   flex-wrap: wrap;
 }
 
-/* Chat section within the AI page */
-.chat-section {
-  border-top: 1px solid var(--line);
-  padding-top: 16px;
+/* ── Role select ────────────────────────────────────────────────────── */
+
+.role-select {
+  max-width: 540px;
+  margin: 60px auto;
   display: grid;
-  gap: 8px;
+  gap: 24px;
+  padding: 0 20px;
 }
-.chat-thread {
-  max-height: 280px;
-  overflow-y: auto;
+.role-select-header {
+  text-align: center;
+}
+.role-select-header h1 { margin: 0; font-size: 1.8rem; letter-spacing: -0.02em; }
+.role-select-header p { margin: 4px 0 0; }
+.role-select-cards {
   display: grid;
-  gap: 8px;
-  padding: 8px 0;
+  gap: 12px;
 }
-.chat-msg { display: grid; gap: 4px; }
-.chat-msg.user { text-align: right; }
-.chat-bubble {
-  display: inline-block;
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 10px 14px;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  max-width: 85%;
+.role-card {
+  appearance: none;
+  border: 2px solid var(--line);
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 20px;
+  cursor: pointer;
   text-align: left;
-}
-.chat-msg.user .chat-bubble {
-  background: var(--primary);
-  color: var(--primary-ink);
-  border-color: var(--primary);
-}
-.chat-bubble.thinking { color: var(--muted); font-style: italic; }
-.chat-plan {
-  margin-top: 4px;
-}
-.chat-input-row {
+  font: inherit;
+  color: var(--ink);
   display: grid;
-  gap: 8px;
+  gap: 6px;
+  transition: border-color 150ms ease;
 }
-.chat-input { width: 100%; }
-.chat-input-buttons {
+.role-card:hover { border-color: var(--primary); }
+.role-card.selected { border-color: var(--primary); background: #d8eae7; }
+.role-card:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+.role-card-icon { font-size: 1.6rem; }
+.role-card strong { font-size: 1.05rem; }
+.role-select-action {
+  display: grid;
+  gap: 10px;
+}
+
+/* ── Companion code card ────────────────────────────────────────────── */
+
+.companion-code-card {
+  background: #d8eae7;
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+  padding: 14px;
   display: flex;
-  gap: 8px;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.companion-code-label { flex: 1 1 100%; }
+.companion-code-value {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--primary);
 }
 

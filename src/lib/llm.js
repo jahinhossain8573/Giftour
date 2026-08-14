@@ -188,7 +188,7 @@ function scoreMatch(query, activity) {
 
 // ORGANISE: take what the user added and reorder/schedule it.
 // NOW ALSO respects the instruction: adds, removes, swaps activities.
-export async function organiseItinerary({ date, items, profile, places, modifiers = [], instruction = '' }) {
+export async function organiseItinerary({ date, items, profile, places, trip, modifiers = [], instruction = '' }) {
   const pool = places || ACTIVITIES
   await delay(350)
   const cap = capForProfile(profile)
@@ -240,7 +240,61 @@ export async function organiseItinerary({ date, items, profile, places, modifier
 
   // 4. If constraints were detected but no specific item was named,
   //    regenerate with those constraints applied as modifiers.
-  if (parsed.constraints.length > 0 && parsed.remove.length === 0 && parsed.add.length === 0 && !parsed.swapOut) {
+  //    ALSO: if instruction is non-empty but NO patterns matched at all,
+  //    treat it as a constraint-based regeneration so "I want quieter"
+  //    or "fewer crowds" still does something.
+  const nothingMatched = parsed.remove.length === 0 && parsed.add.length === 0 && !parsed.swapOut && parsed.constraints.length === 0
+  if (nothingMatched && instruction.trim()) {
+    // Infer modifier from the raw instruction text.
+    const lower = instruction.toLowerCase()
+    const inferred = []
+    if (/quiet|noise|loud|calm/i.test(lower)) inferred.push('quieter')
+    if (/outdoor|park|nature|outside/i.test(lower)) inferred.push('outdoors')
+    if (/indoor|inside|museum|gallery/i.test(lower)) inferred.push('indoors')
+    if (/food|eat|cafe|restaurant|lunch|dinner/i.test(lower)) inferred.push('add-food')
+    if (/rest|break|pause/i.test(lower)) inferred.push('more-rest')
+    if (/short|fewer|less/i.test(lower)) inferred.push('shorter')
+    if (/early|earlier/i.test(lower)) inferred.push('earlier')
+    if (/late|later/i.test(lower)) inferred.push('later')
+
+    // Also try fuzzy-matching the full instruction against the pool to
+    // see if the user named a specific place to add or remove.
+    const matchedPlace = fuzzyMatch(instruction, pool)
+    if (matchedPlace && working.some(it => it.activityId === matchedPlace.id)) {
+      // They named something already in the plan → remove it.
+      working = working.filter(it => it.activityId !== matchedPlace.id)
+    } else if (matchedPlace) {
+      // They named something NOT in the plan → add it.
+      working.push({
+        id: `slot-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        activityId: matchedPlace.id,
+        startHour: 9,
+        hours: 1,
+        notes: '',
+        completed: false,
+        comfort: 0,
+      })
+    }
+
+    if (inferred.length > 0 || matchedPlace) {
+      const mergedModifiers = [...new Set([...modifiers, ...inferred])]
+      const freshPicked = pickBestN({
+        pool, profile, preferences: { disliked: [] }, modifiers: mergedModifiers,
+        cap, maxItems: computeMaxItems(mergedModifiers, profile),
+      })
+      if (freshPicked.length > 0) {
+        working = freshPicked.map(a => ({
+          id: `slot-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          activityId: a.activityId,
+          startHour: 9,
+          hours: a.hours || 1,
+          notes: '',
+          completed: false,
+          comfort: 0,
+        }))
+      }
+    }
+  } else if (parsed.constraints.length > 0 && parsed.remove.length === 0 && parsed.add.length === 0 && !parsed.swapOut) {
     const mergedModifiers = [...new Set([...modifiers, ...parsed.constraints])]
     const freshPicked = pickBestN({
       pool, profile, preferences: { disliked: [] }, modifiers: mergedModifiers,
@@ -259,7 +313,7 @@ export async function organiseItinerary({ date, items, profile, places, modifier
     }
   }
 
-  // 5. Re-schedule: order items with rest interleaved.
+  // 5. Re-schedule: order items with rest interleaved, spreading across the day.
   const decorated = working
     .filter(i => getActivityById(i.activityId, pool))
     .map(i => ({ ...i, activity: getActivityById(i.activityId, pool) }))
@@ -268,32 +322,38 @@ export async function organiseItinerary({ date, items, profile, places, modifier
   const others = decorated.filter(i => !isRest(i.activity))
   others.sort((a, b) => activityLoad(a.activity) - activityLoad(b.activity))
 
-  const ordered = []
   const startHour = computeStartHour(profile, modifiers)
+  const endHour = trip?.duration === 'full' ? 18 : trip?.duration === 'half' ? 14 : trip?.duration === 'short' ? 12 : 20
+  const totalHours = endHour - startHour
+  const slotCount = others.length
+  const hoursPerSlot = slotCount > 0 ? Math.max(1, Math.floor(totalHours / (slotCount + (rests.length > 0 ? 1 : 0)))) : 2
+
+  const ordered = []
   const restEvery = modifiers.includes('more-rest') ? 1 : 2
   let cursor = startHour
   let sinceRest = 0
   for (const item of others) {
     if (sinceRest >= restEvery && rests.length) {
       const rest = rests.shift()
-      ordered.push(schedule(rest, cursor, rest.hours || 1, 'recovery break'))
-      cursor += (rest.hours || 1)
+      ordered.push(schedule(rest, cursor, 1, 'recovery break'))
+      cursor += 1
       sinceRest = 0
     }
-    const hours = item.hours || 1
-    // Pick the activity's quietest window around the cursor.
+    const hours = Math.min(hoursPerSlot, endHour - cursor)
+    if (hours < 1) break
     let bestHour = cursor
     let bestCrowd = crowdAt(item.activity, cursor)
-    for (let h = Math.max(8, cursor - 1); h <= Math.min(20, cursor + 2); h++) {
+    for (let h = Math.max(8, cursor - 1); h <= Math.min(endHour, cursor + 2); h++) {
       if (crowdAt(item.activity, h) < bestCrowd) { bestHour = h; bestCrowd = crowdAt(item.activity, h) }
     }
     if (bestHour < cursor) cursor = bestHour
-    ordered.push(schedule(item, cursor, hours, reasoningFor(item.activity, profile)))
-    cursor += hours
+    ordered.push(schedule(item, cursor, hours, reasoningFor(item.activity, profile, cursor)))
+    cursor += hours + 0.5
     sinceRest += 1
   }
   for (const rest of rests) {
-    ordered.push(schedule(rest, Math.min(cursor, 19), rest.hours || 1, 'wind-down break'))
+    if (cursor >= endHour) break
+    ordered.push(schedule(rest, Math.min(cursor, endHour - 1), rest.hours || 1, 'wind-down break'))
     cursor += (rest.hours || 1)
   }
 
@@ -317,7 +377,7 @@ export async function organiseItinerary({ date, items, profile, places, modifier
 }
 
 // GENERATE: no user input — pick activities from the catalogue that fit the profile.
-export async function generateItinerary({ date, profile, preferences = {}, places, modifiers = [], instruction = '' }) {
+export async function generateItinerary({ date, profile, preferences = {}, places, trip, modifiers = [], instruction = '' }) {
   await delay(500)
   const pool = places || ACTIVITIES
   const cap = capForProfile(profile)
@@ -329,7 +389,7 @@ export async function generateItinerary({ date, profile, preferences = {}, place
     pool, profile, preferences, modifiers, cap, maxItems,
   })
 
-  // Schedule the picked items.
+  // Schedule the picked items, spreading them across the available time.
   const rests = picked.filter(a => {
     const act = getActivityById(a.activityId, pool)
     return act && isRest(act)
@@ -339,6 +399,12 @@ export async function generateItinerary({ date, profile, preferences = {}, place
     return !act || !isRest(act)
   })
 
+  // Determine the end hour based on trip duration.
+  const endHour = trip?.duration === 'full' ? 18 : trip?.duration === 'half' ? 14 : trip?.duration === 'short' ? 12 : 20
+  const totalHours = endHour - startHour
+  const slotCount = others.length
+  const hoursPerSlot = slotCount > 0 ? Math.max(1, Math.floor(totalHours / (slotCount + (rests.length > 0 ? 1 : 0)))) : 2
+
   const ordered = []
   const restEvery = modifiers.includes('more-rest') ? 1 : 2
   let cursor = startHour
@@ -347,28 +413,30 @@ export async function generateItinerary({ date, profile, preferences = {}, place
     if (sinceRest >= restEvery && rests.length) {
       const rest = rests.shift()
       const act = getActivityById(rest.activityId, pool)
-      ordered.push(schedule(rest, cursor, 1, act ? reasoningFor(act, profile) : 'recovery break'))
+      ordered.push(schedule(rest, cursor, 1, act ? reasoningFor(act, profile, cursor) : 'recovery break'))
       cursor += 1
       sinceRest = 0
     }
     const act = getActivityById(item.activityId, pool)
-    const hours = item.hours || 1
+    const hours = Math.min(hoursPerSlot, endHour - cursor)
+    if (hours < 1) break
     let bestHour = cursor
     if (act) {
       let bestCrowd = crowdAt(act, cursor)
-      for (let h = Math.max(8, cursor - 1); h <= Math.min(20, cursor + 2); h++) {
+      for (let h = Math.max(8, cursor - 1); h <= Math.min(endHour, cursor + 2); h++) {
         if (crowdAt(act, h) < bestCrowd) { bestHour = h; bestCrowd = crowdAt(act, h) }
       }
     }
     if (bestHour < cursor) cursor = bestHour
-    const reasoning = act ? reasoningFor(act, profile) : 'matches your profile'
+    const reasoning = act ? reasoningFor(act, profile, bestHour) : 'matches your profile'
     ordered.push(schedule(item, cursor, hours, reasoning))
-    cursor += hours
+    cursor += hours + 0.5
     sinceRest += 1
   }
   for (const rest of rests) {
+    if (cursor >= endHour) break
     const act = getActivityById(rest.activityId, pool)
-    ordered.push(schedule(rest, Math.min(cursor, 19), 1, act ? reasoningFor(act, profile) : 'wind-down'))
+    ordered.push(schedule(rest, Math.min(cursor, endHour - 1), 1, act ? reasoningFor(act, profile, Math.min(cursor, endHour - 1)) : 'wind-down'))
     cursor += 1
   }
 
@@ -388,7 +456,7 @@ export async function generateItinerary({ date, profile, preferences = {}, place
         { activityId: extra.activity.id, hours: 1 },
         cursor,
         1,
-        reasoningFor(extra.activity, profile),
+        reasoningFor(extra.activity, profile, cursor),
       ))
       cursor += 1
     }
@@ -398,6 +466,83 @@ export async function generateItinerary({ date, profile, preferences = {}, place
     items: ordered,
     notes: `Auto-generated from your profile. Total load ${dayLoad(ordered)}/${cap}.`,
   }
+}
+
+// ─── Candidate ranking (used by the new card selector UI) ─────────────
+
+/**
+ * Rank ~14 candidate attractions from the pool based on profile fit.
+ * Returns an array of { activityId, score } objects, no scheduling.
+ */
+export async function rankCandidates({ profile, preferences = {}, places, trip, count = 14 }) {
+  await delay(300)
+  const pool = places || ACTIVITIES
+  const isLandmark = (a) => /^(?:[a-z]+-[a-z]+-|gmaps-)/.test(a.id)
+
+  const ranked = pool
+    .filter(a => a.id && a.name)
+    .map(a => ({
+      activityId: a.id,
+      score: suitability(a, profile)
+        + (isLandmark(a) ? 30 : 0)
+        - (preferences.disliked?.includes(a.category) ? 25 : 0),
+    }))
+    .filter(x => x.score > 10)
+    .sort((a, b) => b.score - a.score)
+
+  // Mix in diversity: take top-scoring items but ensure category variety.
+  const seen = new Set()
+  const result = []
+  for (const item of ranked) {
+    if (result.length >= count) break
+    if (seen.has(item.activityId)) continue
+    seen.add(item.activityId)
+    result.push(item)
+  }
+
+  return result
+}
+
+/**
+ * Schedule a set of items (from user selections) into time slots.
+ * Returns an array of full slot objects with startHour, hours, reasoning.
+ */
+export function scheduleItems({ items: slotItems, profile, trip, places }) {
+  if (!slotItems || !slotItems.length) return []
+  const startHour = computeStartHour(profile, [])
+  const endHour = trip?.duration === 'full' ? 18 : trip?.duration === 'half' ? 14 : trip?.duration === 'short' ? 12 : 20
+  const totalHours = Math.max(1, endHour - startHour)
+  const hoursPerSlot = Math.max(1, Math.floor(totalHours / slotItems.length))
+
+  const result = []
+  let cursor = startHour
+  for (const item of slotItems) {
+    const act = getActivityById(item.activityId, places)
+    const hours = Math.min(hoursPerSlot, Math.max(1, endHour - cursor))
+    if (hours < 1) break
+    let bestHour = cursor
+    if (act) {
+      let bestCrowd = crowdAt(act, cursor)
+      for (let h = Math.max(8, cursor - 1); h <= Math.min(endHour, cursor + 2); h++) {
+        if (crowdAt(act, h) < bestCrowd) { bestHour = h; bestCrowd = crowdAt(act, h) }
+      }
+    }
+    if (bestHour < cursor) cursor = bestHour
+    const reasoning = act ? reasoningFor(act, profile, cursor) : 'matches your profile'
+    result.push({
+      id: `slot-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      activityId: item.activityId,
+      startHour: cursor,
+      hours,
+      notes: '',
+      completed: false,
+      comfort: 0,
+      reasoning,
+    })
+    cursor += hours + 0.5
+  }
+
+  return result
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────
@@ -435,19 +580,36 @@ function schedule(item, startHour, hours, reasoning) {
   }
 }
 
-function reasoningFor(activity, profile) {
+function reasoningFor(activity, profile, startHour) {
   if (!activity) return ''
   const tol = profile?.tolerances || {}
   const axes = ['noise', 'crowds', 'light', 'unpredictability']
   const reasons = []
+  const warnings = []
   for (const axis of axes) {
     const userMax = tol[axis] ?? 3
     const level = activity.sensory?.[axis] ?? 0
     if (level <= userMax - 1) reasons.push(`${axis} well within your tolerance`)
     else if (level <= userMax) reasons.push(`${axis} at your edge — manageable`)
+    if (level > userMax) warnings.push(`${axis} exceeds your tolerance (${level} vs your ${userMax})`)
   }
+
+  // Add time-of-day suitability hint.
+  if (startHour !== undefined && activity.crowdByHour) {
+    const hourCrowd = activity.crowdByHour[Math.min(23, Math.max(0, Math.floor(startHour)))] ?? 0
+    if (hourCrowd >= 4) {
+      warnings.push(`very crowded at this hour (${hourCrowd}/5)`)
+    } else if (hourCrowd <= 1) {
+      reasons.push(`quiet time with low crowds (${hourCrowd}/5)`)
+    }
+  }
+
   if (activity.category === 'rest') reasons.push('recovery activity to lower the day\'s load')
-  return reasons.slice(0, 2).join('; ') || 'matches your profile'
+
+  const parts = []
+  if (reasons.length) parts.push(reasons.slice(0, 2).join('; '))
+  if (warnings.length) parts.push('⚠ ' + warnings.join('; '))
+  return parts.join(' | ') || 'matches your profile'
 }
 
 function delay(ms) { return new Promise(r => setTimeout(r, ms)) }

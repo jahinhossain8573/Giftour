@@ -15,8 +15,8 @@ export function getActivityById(id, pool) {
 // Predicted crowd at a given hour (0-23) for an activity.
 export function crowdAt(activity, hour) {
   if (!activity || !activity.crowdByHour) return 0
-  const h = Math.max(0, Math.min(23, hour))
-  return activity.crowdByHour[h]
+  const h = Math.max(0, Math.min(23, Math.floor(hour)))
+  return activity.crowdByHour[h] ?? 0
 }
 
 // Per-axis suitability for a user profile, 0-100. Higher = better fit.

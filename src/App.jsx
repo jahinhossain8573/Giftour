@@ -1,15 +1,43 @@
-import { useEffect, useMemo, useState } from 'react'
+import { Component, useEffect, useMemo, useState } from 'react'
 import './styles.css'
+import RoleSelect from './components/RoleSelect.jsx'
 import OnboardingQuiz from './components/OnboardingQuiz.jsx'
 import Calendar from './components/Calendar.jsx'
 import ItineraryEditor from './components/ItineraryEditor.jsx'
 import SensoryBudget from './components/SensoryBudget.jsx'
-import AiPanel from './components/AiPanel.jsx'
 import AiItineraryPage from './components/AiItineraryPage.jsx'
+import CompanionView from './components/CompanionView.jsx'
 import TripSetup from './components/TripSetup.jsx'
-import { loadState, saveState, clearState } from './lib/storage.js'
+import { loadState, saveState, clearState, generateCompanionCode } from './lib/storage.js'
 import { applyFeedback } from './lib/profile.js'
 import { resolvePlaces } from './lib/places.js'
+
+// ─── Error boundary ───────────────────────────────────────────────────
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { error: null }
+  }
+  static getDerivedStateFromError(error) { return { error } }
+  componentDidCatch(error, info) { console.error('giftour: ErrorBoundary caught', error, info) }
+  render() {
+    if (this.state.error) {
+      return (
+        <section className="ai-page ai-page-error">
+          <div className="ai-page-error-icon" aria-hidden="true">!</div>
+          <h2>Something went wrong</h2>
+          <p className="muted">{this.state.error.message}</p>
+          <pre className="muted small" style={{ fontSize: '0.7rem', whiteSpace: 'pre-wrap', maxHeight: 300, overflow: 'auto', textAlign: 'left', background: '#f4f1ec', padding: 12, borderRadius: 8, maxWidth: '100%' }}>{this.state.error.stack}</pre>
+          <button className="btn btn-primary" onClick={() => window.location.reload()}>Reload</button>
+        </section>
+      )
+    }
+    return this.props.children
+  }
+}
+
+// ─── App ──────────────────────────────────────────────────────────────
 
 function EmptyState() {
   return (
@@ -30,32 +58,30 @@ function EmptyState() {
 }
 
 function durationLabel(d) {
-  return {
-    short: 'A few hours',
-    half: 'Half day',
-    full: 'Full day',
-    overnight: 'Overnight',
-  }[d] || d
+  return { short: 'A few hours', half: 'Half day', full: 'Full day', overnight: 'Overnight' }[d] || d
 }
 
 export default function App() {
+  // ─── All hooks first, before any early returns ────────────────────────
   const [state, setState] = useState(() => loadState())
-  // No date selected until the user picks one — triggers the empty state.
   const [selected, setSelected] = useState(null)
   const [quizOpen, setQuizOpen] = useState(false)
 
+  // Places resolution (async).
+  const [places, setPlaces] = useState({ places: [], matched: null, source: null })
+  const [placesLoading, setPlacesLoading] = useState(false)
+  const [placesStarted, setPlacesStarted] = useState(null)
+
+  // Persist state whenever it changes.
   useEffect(() => { saveState(state) }, [state])
 
-  // Derived: today's itinerary (or empty if none).
-  const items = state.itineraries[selected] || []
-
-  // Derived: profile after applying feedback. Updates whenever the log changes.
+  // Profile refinement.
   const refinedProfile = useMemo(
     () => applyFeedback(state.profile, state.feedbackLog),
     [state.profile, state.feedbackLog]
   )
 
-  // Persist refined tolerances back into the profile so they accumulate.
+  // Persist refined tolerances back into the profile.
   useEffect(() => {
     if (!state.profile || !refinedProfile) return
     if (typeof refinedProfile.tolerance !== 'number') return
@@ -65,24 +91,8 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refinedProfile.tolerance])
 
-  const onComplete = (profile) => {
-    setState(s => ({ ...s, profile, quizDone: true }))
-    setQuizOpen(false)
-  }
-
-  const setItems = (newItems) => {
-    setState(s => ({ ...s, itineraries: { ...s.itineraries, [selected]: newItems } }))
-  }
-
-  // Per-date trip metadata (destination, duration, notes).
+  // Resolve places when the destination changes.
   const trip = selected ? state.trips?.[selected] : null
-
-  // Resolve the destination into a pool of real places.
-  // Now async — calls Google Places API with fallback to static data.
-  const [places, setPlaces] = useState({ places: [], matched: null, source: null })
-  const [placesLoading, setPlacesLoading] = useState(false)
-  // Track whether we've started resolving places for the current trip.
-  const [placesStarted, setPlacesStarted] = useState(null)
   useEffect(() => {
     if (!trip?.destination) {
       setPlaces({ places: [], matched: null, source: null })
@@ -105,26 +115,13 @@ export default function App() {
     return () => { cancelled = true }
   }, [trip?.destination])
 
-  // Wait for places to resolve before rendering the AI page.
   const placesReady = !trip?.destination || (placesStarted === trip?.destination && !placesLoading)
 
-  const saveTrip = (meta) => {
-    setState(s => ({ ...s, trips: { ...(s.trips || {}), [selected]: meta } }))
-  }
+  // Derived values.
+  const items = state.itineraries[selected] || []
 
-  // Called by AiItineraryPage when the user clicks "Apply plan".
-  const onAiApply = (newItems) => {
-    setItems(newItems)
-  }
-
-  const logFeedback = (entry) => {
-    setState(s => ({ ...s, feedbackLog: [...s.feedbackLog, { ...entry, at: new Date().toISOString() }] }))
-  }
-
+  // Preferences from feedback log.
   const preferences = useMemo(() => {
-    // Infer "disliked" categories from the feedback log. A category counts as
-    // disliked if more than half the entries for activities in that category
-    // were marked overwhelming.
     const counts = {}
     const over = {}
     for (const f of state.feedbackLog) {
@@ -135,7 +132,59 @@ export default function App() {
     return { disliked: Object.keys(over).filter(k => (over[k] / counts[k]) > 0.5) }
   }, [state.feedbackLog])
 
-  // First run: no profile yet — show quiz, no skip.
+  // ─── Callbacks ───────────────────────────────────────────────────────
+
+  const onComplete = (profile) => {
+    setState(s => ({ ...s, profile, quizDone: true }))
+    setQuizOpen(false)
+  }
+
+  const setItems = (newItems) => {
+    setState(s => ({ ...s, itineraries: { ...s.itineraries, [selected]: newItems } }))
+  }
+
+  const saveTrip = (meta) => {
+    setState(s => ({ ...s, trips: { ...(s.trips || {}), [selected]: meta } }))
+  }
+
+  const onAiApply = (newItems) => {
+    setItems(newItems)
+  }
+
+  const logFeedback = (entry) => {
+    setState(s => ({ ...s, feedbackLog: [...s.feedbackLog, { ...entry, at: new Date().toISOString() }] }))
+  }
+
+  // ─── Early returns (only JSX, after all hooks) ───────────────────────
+
+  // Role selection (first launch).
+  if (!state.role) {
+    return (
+      <div className="app">
+        <RoleSelect
+          onRole={(role, code) => {
+            setState(s => ({
+              ...s,
+              role,
+              companionLink: role === 'companion' ? (code || null) : null,
+            }))
+          }}
+        />
+      </div>
+    )
+  }
+
+  // Companion view.
+  if (state.role === 'companion') {
+    return (
+      <CompanionView
+        code={state.companionLink}
+        onDisconnect={() => setState(s => ({ ...s, role: null, companionLink: null }))}
+      />
+    )
+  }
+
+  // Quiz / profile setup.
   if (!state.profile || quizOpen) {
     return (
       <div className="app">
@@ -153,6 +202,8 @@ export default function App() {
     )
   }
 
+  // ─── Main traveller layout ───────────────────────────────────────────
+
   return (
     <div className="app">
       <header className="app-header">
@@ -162,6 +213,9 @@ export default function App() {
             Hi, {state.profile.name}. Tolerance {state.profile.tolerance}/5.
             {' '}
             {state.feedbackLog.length > 0 && `Adjusted from ${state.feedbackLog.length} day${state.feedbackLog.length === 1 ? '' : 's'} of feedback.`}
+            {state.companionCode && (
+              <span> · Code: {state.companionCode}</span>
+            )}
           </p>
         </div>
         <div className="header-actions">
@@ -178,6 +232,7 @@ export default function App() {
             selected={selected}
             onSelect={setSelected}
             itineraries={state.itineraries}
+            trips={state.trips}
           />
           {selected && (
             <button className="btn btn-ghost small" style={{ marginTop: 8, width: '100%' }} onClick={() => setSelected(null)}>
@@ -187,12 +242,13 @@ export default function App() {
         </aside>
 
         <section className="content">
+          <ErrorBoundary>
           {!selected ? (
             <EmptyState />
           ) : !trip ? (
             <TripSetup
               date={selected}
-              onSave={(meta) => { saveTrip(meta); /* keeps selected as-is */ }}
+              onSave={(meta) => { saveTrip(meta) }}
               onCancel={() => setSelected(null)}
             />
           ) : items.length === 0 ? (
@@ -213,6 +269,9 @@ export default function App() {
                 trip={trip}
                 places={places.places}
                 onApply={onAiApply}
+                onStartOver={() => saveTrip(null)}
+                onBack={() => saveTrip(null)}
+                companionCode={state.companionCode}
               />
             )
           ) : (
@@ -242,17 +301,29 @@ export default function App() {
                 onLogFeedback={logFeedback}
               />
               <SensoryBudget items={items} profile={state.profile} places={places.places} />
-              <AiPanel
-                date={selected}
-                items={items}
-                profile={state.profile}
-                preferences={preferences}
-                trip={trip}
-                places={places.places}
-                onApply={setItems}
-              />
+              {state.profile?.independence === 'dependent' && (
+                <div className="companion-code-card">
+                  <span className="companion-code-label muted small">Companion Code</span>
+                  {state.companionCode ? (
+                    <>
+                      <span className="companion-code-value">{state.companionCode}</span>
+                      <button className="btn btn-ghost small" onClick={() => navigator.clipboard.writeText(state.companionCode)}>
+                        Copy
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      className="btn btn-primary small"
+                      onClick={() => setState(s => ({ ...s, companionCode: generateCompanionCode() }))}
+                    >
+                      Generate companion code
+                    </button>
+                  )}
+                </div>
+              )}
             </>
           )}
+          </ErrorBoundary>
         </section>
       </main>
     </div>

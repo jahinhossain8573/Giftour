@@ -1,34 +1,20 @@
-// AI Itinerary Page — a full-page view shown right after trip setup.
-//
-// Phase 1: loading skeleton while the LLM generates the first plan.
-// Phase 2: timeline of generated activities + chat interface for refinements.
-// Phase 3: user applies the plan and transitions to the day-of editor view.
-//
-// The chat and modifier chips mirror the AiPanel pattern but are integrated
-// directly into the page so the generated plan is always visible alongside
-// the conversation.
+// AI Itinerary Page — shows 10–15 candidate attraction cards.
+// The user taps to select/deselect their picks, then hits "Apply plan".
+// If they pick more than the trip duration allows, they get a warning.
+// No chat, no times — those are generated on apply.
 
-import { useEffect, useRef, useState } from 'react'
-import { generateItinerary, organiseItinerary } from '../lib/llm.js'
+import { useEffect, useState } from 'react'
+import { rankCandidates, scheduleItems } from '../lib/llm.js'
 import { getActivityById } from '../data/activities.js'
 import { activityLoad, isRest } from '../lib/sensory.js'
 import { suitabilityAtHour, crowdAt } from '../lib/crowd.js'
-import { matchCity } from '../lib/places.js'
 
-const MODIFIER_CHIPS = [
-  { id: 'quieter', label: 'Make it quieter' },
-  { id: 'more-rest', label: 'Add a rest break' },
-  { id: 'earlier', label: 'Start earlier' },
-  { id: 'later', label: 'Start later' },
-  { id: 'add-food', label: 'Add food' },
-  { id: 'outdoors', label: 'Prefer outdoors' },
-  { id: 'indoors', label: 'Keep it indoors' },
-  { id: 'shorter', label: 'Shorter day' },
-  { id: 'less-walking', label: 'Less walking' },
-]
-
-function hourLabel(h) {
-  return `${String(Math.floor(h)).padStart(2, '0')}:00`
+// Max selections based on trip duration.
+const MAX_PICKS = {
+  short: 2,
+  half: 3,
+  full: 4,
+  overnight: 5,
 }
 
 function bucket(load) {
@@ -38,177 +24,118 @@ function bucket(load) {
   return 'high'
 }
 
-export default function AiItineraryPage({ date, profile, preferences, trip, places, onApply }) {
-  const [phase, setPhase] = useState('loading') // loading | ready | error
-  const [items, setItems] = useState(null)
+export default function AiItineraryPage({ date, profile, preferences, trip, places, onApply, onStartOver, onBack, companionCode }) {
+  const [phase, setPhase] = useState('loading')
+  const [candidates, setCandidates] = useState([])
+  const [selections, setSelections] = useState(new Set())
   const [error, setError] = useState(null)
-  const [busy, setBusy] = useState(false)
-  const [selected, setSelected] = useState([])
-  const [instruction, setInstruction] = useState('')
-  const [messages, setMessages] = useState([])
-  const [applied, setApplied] = useState(false)
-  const threadRef = useRef(null)
+  const [applyError, setApplyError] = useState(null)
   const pool = places || null
-  const matched = trip?.destination ? matchCity(trip.destination) : null
 
-  // ——— Auto-generate on mount ———
+  // Load candidates on mount.
   useEffect(() => {
     let cancelled = false
     ;(async () => {
       try {
-        const result = await generateItinerary({
-          date, profile, preferences, places, trip,
+        const result = await rankCandidates({
+          profile, preferences, places, trip,
+          count: 14,
         })
         if (cancelled) return
-        setItems(result.items)
-        setMessages([{
-          id: uid(),
-          role: 'assistant',
-          text: matched
-            ? `I've picked calm ${matched.name} options for your day. Tell me what to change — fewer crowds, swap a museum for a park, finish by 4pm, anything.`
-            : `I've put together a plan based on your profile. Tell me what to change — fewer crowds, swap a museum for a park, finish by 4pm, anything.`,
-          items: result.items,
-        }])
+        setCandidates(result)
+        // Pre-select top 4 (or whatever the trip max is).
+        const max = MAX_PICKS[trip?.duration] || 4
+        setSelections(new Set(result.slice(0, max).map(c => c.activityId)))
         setPhase('ready')
       } catch (e) {
         if (!cancelled) {
-          setError(e.message || 'Could not generate a plan. Please try again.')
+          setError(e.message || 'Could not find attractions. Please try again.')
           setPhase('error')
         }
       }
     })()
     return () => { cancelled = true }
-    // Only run on mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Auto-scroll the chat thread.
-  useEffect(() => {
-    const el = threadRef.current
-    if (el) el.scrollTop = el.scrollHeight
-  }, [messages, busy])
-
-  const toggleChip = (id) => {
-    setSelected(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id])
-  }
-
-  const sendChat = async () => {
-    const text = instruction.trim()
-    if (!text || busy || !items) return
-    setInstruction('')
-    setError(null)
-    setBusy(true)
-    setMessages(m => [...m, { id: uid(), role: 'user', text }])
-    try {
-      const result = await organiseItinerary({
-        date, items, profile, preferences,
-        modifiers: selected, instruction: text, places, trip,
-      })
-      setItems(result.items)
-      setMessages(m => [...m, {
-        id: uid(), role: 'assistant',
-        text: result.notes || 'Here is the updated plan.',
-        items: result.items,
-      }])
-    } catch (e) {
-      setError(e.message)
-      setMessages(m => [...m, {
-        id: uid(), role: 'assistant',
-        text: `Sorry, I couldn't do that — ${e.message}`,
-      }])
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const regenerate = async () => {
-    if (busy) return
-    setBusy(true); setError(null)
-    setMessages(m => [...m, { id: uid(), role: 'user', text: 'Generate a new plan' }])
-    try {
-      const result = await generateItinerary({
-        date, profile, preferences, modifiers: selected, places, trip,
-      })
-      setItems(result.items)
-      setMessages(m => [...m, {
-        id: uid(), role: 'assistant',
-        text: result.notes || 'Here is a fresh plan.',
-        items: result.items,
-      }])
-    } catch (e) {
-      setError(e.message)
-      setMessages(m => [...m, {
-        id: uid(), role: 'assistant',
-        text: `Sorry, I couldn't do that — ${e.message}`,
-      }])
-    } finally {
-      setBusy(false)
-    }
+  const toggleCard = (id) => {
+    setSelections(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+    setApplyError(null)
   }
 
   const handleApply = () => {
-    if (!items) return
-    setApplied(true)
-    onApply(items)
-  }
+    const max = MAX_PICKS[trip?.duration] || 4
+    if (selections.size === 0) {
+      setApplyError('Select at least one attraction.')
+      return
+    }
+    if (selections.size > max) {
+      setApplyError(
+        `${selections.size} attractions is too many for a ${trip?.duration || 'full'}-day trip (max ${max}). Deselect some.`
+      )
+      return
+    }
+    setApplyError(null)
 
-  const onKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      sendChat()
+    const selectedItems = candidates.filter(c => selections.has(c.activityId))
+    try {
+      const scheduled = scheduleItems({ items: selectedItems, profile, trip, places })
+      if (!scheduled || scheduled.length === 0) {
+        setApplyError('Could not schedule your selections. Try different ones.')
+        return
+      }
+      onApply(scheduled)
+    } catch (e) {
+      console.error('giftour: apply failed', e)
+      setApplyError(e.message || 'Something went wrong. Try again.')
     }
   }
 
-  // ——— Loading state ———
+  // Loading
   if (phase === 'loading') {
     return (
       <section className="ai-page ai-page-loading" role="status">
         <div className="ai-page-skeleton">
           <div className="skeleton skeleton-title" />
           <div className="skeleton skeleton-line" />
-          <div className="skeleton skeleton-line" />
           <div className="skeleton skeleton-line short" />
           <div className="skeleton skeleton-card" />
           <div className="skeleton skeleton-card" />
           <div className="skeleton skeleton-card" />
         </div>
-        <p className="muted small">Planning your day…</p>
+        <p className="muted small">Finding attractions…</p>
       </section>
     )
   }
 
-  // ——— Error state ———
+  // Error
   if (phase === 'error') {
     return (
       <section className="ai-page ai-page-error">
         <div className="ai-page-error-icon" aria-hidden="true">!</div>
-        <h2>Could not generate a plan</h2>
+        <h2>Could not find attractions</h2>
         <p className="muted">{error}</p>
-        <button className="btn btn-primary" onClick={() => { setPhase('loading'); setError(null); window.location.reload() }}>
+        <button className="btn btn-primary" onClick={() => window.location.reload()}>
           Try again
         </button>
         <p className="muted small" style={{ marginTop: 8 }}>
-          You can also go back and adjust your trip details, then try again.
+          Try a different destination or adjust your trip details.
         </p>
       </section>
     )
   }
 
-  // ——— Applied state (show brief confirmation before parent transitions) ———
-  if (applied) {
-    return (
-      <section className="ai-page ai-page-applied">
-        <div className="ai-page-applied-icon" aria-hidden="true">✓</div>
-        <h2>Plan applied!</h2>
-        <p className="muted">Your itinerary is saved. You can now edit times, add notes, and mark activities as you go.</p>
-      </section>
-    )
-  }
+  const max = MAX_PICKS[trip?.duration] || 4
+  const count = selections.size
 
-  // ——— Ready state: timeline + chat ———
+  // Ready: card grid
   return (
     <section className="ai-page">
-      {/* Trip banner */}
       <div className="trip-banner">
         <div>
           <strong>{trip?.destination}</strong>
@@ -219,139 +146,87 @@ export default function AiItineraryPage({ date, profile, preferences, trip, plac
         </div>
       </div>
 
-      {/* Modifier chips */}
-      <div className="ai-chips" role="group" aria-label="Quick modifications">
-        {MODIFIER_CHIPS.map(chip => {
-          const on = selected.includes(chip.id)
+      <div className="candidate-counter">
+        <span className="muted small">
+          {count === 0
+            ? `Pick up to ${max} attractions for your day`
+            : `${count} of ${max} selected`}
+        </span>
+        {count > max && (
+          <span className="candidate-counter-warn">
+            Too many — deselect {count - max}
+          </span>
+        )}
+      </div>
+
+      <div className="candidate-grid">
+        {candidates.map((it, i) => {
+          const activity = getActivityById(it.activityId, pool)
+          if (!activity) return null
+          const isSelected = selections.has(it.activityId)
+          const load = activityLoad(activity, 1)
+          const crowd = crowdAt(activity, 12)
+          const fit = suitabilityAtHour(activity, profile, 12)
           return (
             <button
+              key={it.activityId || i}
               type="button"
-              key={chip.id}
-              className={`ai-chip ${on ? 'selected' : ''}`}
-              onClick={() => toggleChip(chip.id)}
-              aria-pressed={on}
+              className={`candidate-card ${isSelected ? 'selected' : ''}`}
+              onClick={() => toggleCard(it.activityId)}
+              aria-pressed={isSelected}
             >
-              {chip.label}
+              {activity.photoUrl && (
+                <div className="candidate-photo">
+                  <img src={activity.photoUrl} alt={activity.name} loading="lazy" onError={(e) => { e.target.style.display = 'none' }} />
+                </div>
+              )}
+              <div className="candidate-body">
+                <div className="candidate-header">
+                  <strong>{activity.name}</strong>
+                  <span className={`load-pill load-${bucket(load)}`}>load {load}</span>
+                </div>
+                <div className="candidate-meta muted small">
+                  {activity.location} · {activity.category}
+                  {activity.rating ? ` · ${activity.rating}/5 ⭐` : ''}
+                  {' · '}crowd {crowd}/5 · fit {fit}%
+                </div>
+                {activity.description && (
+                  <p className="candidate-desc muted small">{activity.description}</p>
+                )}
+              </div>
+              {isSelected && <span className="candidate-check" aria-hidden="true">✓</span>}
             </button>
           )
         })}
       </div>
 
-      {/* Timeline of generated items */}
-      <ol className="ai-timeline">
-        {(items || []).map((it, i) => {
-          const activity = getActivityById(it.activityId, pool)
-          if (!activity) return null
-          const load = activityLoad(activity, it.hours)
-          const crowd = crowdAt(activity, it.startHour)
-          const fit = suitabilityAtHour(activity, profile, it.startHour)
-          return (
-            <li key={it.id || i} className={`ai-timeline-item ${isRest(activity) ? 'is-rest' : ''}`}>
-              <div className="ai-timeline-marker" />
-              <time className="ai-timeline-time">{hourLabel(it.startHour)}</time>
-              <div className="ai-timeline-content">
-                <div className="ai-timeline-header">
-                  <strong>{activity.name}</strong>
-                  {isRest(activity) && <span className="rest-tag">rest</span>}
-                  <span className={`load-pill load-${bucket(load)}`}>load {load}</span>
-                </div>
-                <div className="ai-timeline-meta muted small">
-                  {activity.location} · {activity.category}
-                  {' · '}crowd {crowd}/5 · fit {fit}%
-                </div>
-                {it.hours && (
-                  <span className="muted small">{it.hours}h</span>
-                )}
-                {it.reasoning && (
-                  <p className="ai-timeline-reason muted small">{it.reasoning}</p>
-                )}
-              </div>
-            </li>
-          )
-        })}
-      </ol>
+      {companionCode && (
+        <div className="companion-code-card">
+          <span className="companion-code-label muted small">Share with your companion</span>
+          <span className="companion-code-value">{companionCode}</span>
+          <button className="btn btn-ghost small" onClick={() => navigator.clipboard.writeText(companionCode)}>
+            Copy code
+          </button>
+        </div>
+      )}
 
-      {/* Action buttons */}
       <div className="ai-page-footer">
-        <button
-          className="btn btn-primary"
-          onClick={handleApply}
-          disabled={busy || !items}
-        >
-          Apply plan
+        <button className="btn btn-primary" onClick={handleApply}>
+          Apply plan ({count})
         </button>
-        <button
-          className="btn"
-          onClick={regenerate}
-          disabled={busy}
-        >
+        <button className="btn" onClick={() => onBack?.()}>
+          Back
+        </button>
+        <button className="btn btn-ghost" onClick={() => onStartOver?.()}>
           Start over
         </button>
       </div>
 
-      {/* Chat thread */}
-      <div className="chat-section">
-        <div className="chat-thread" ref={threadRef} aria-live="polite">
-          {messages.map(m => (
-            <div key={m.id} className={`chat-msg ${m.role}`}>
-              <div className="chat-bubble">{m.text}</div>
-              {m.items && (
-                <div className="chat-plan">
-                  <ul className="ai-reason-list">
-                    {m.items.map((it, idx) => (
-                      <li key={it.id || idx} className="ai-reason">
-                        <span className="ai-reason-dot" /> {it.reasoning}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          ))}
-          {busy && (
-            <div className="chat-msg assistant">
-              <div className="chat-bubble thinking">Thinking…</div>
-            </div>
-          )}
-        </div>
-
-        <div className="chat-input-row">
-          <textarea
-            className="text-input chat-input"
-            rows={2}
-            placeholder="Tell the AI what to change…"
-            value={instruction}
-            onChange={e => setInstruction(e.target.value)}
-            onKeyDown={onKeyDown}
-            disabled={busy}
-            aria-label="Chat with AI"
-          />
-          <div className="chat-input-buttons">
-            <button
-              className="btn btn-primary"
-              onClick={sendChat}
-              disabled={busy || !instruction.trim()}
-            >
-              Send
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {error && <p className="error">{error}</p>}
+      {applyError && <p className="error">{applyError}</p>}
     </section>
   )
 }
 
-function uid() {
-  return `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
-}
-
 function durationLabel(d) {
-  return ({
-    short: 'A few hours',
-    half: 'Half day',
-    full: 'Full day',
-    overnight: 'Overnight',
-  }[d] || d)
+  return ({ short: 'A few hours', half: 'Half day', full: 'Full day', overnight: 'Overnight' }[d] || d)
 }
