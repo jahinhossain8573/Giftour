@@ -35,7 +35,7 @@ const STEPS = [
 
 const SCALE_LABELS = ['Very difficult', 'Difficult', 'Manageable', 'Comfortable', 'Very comfortable']
 
-export default function OnboardingQuiz({ onComplete }) {
+export default function OnboardingQuiz({ onComplete, onCancel }) {
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState({})
   const current = STEPS[step]
@@ -149,7 +149,10 @@ export default function OnboardingQuiz({ onComplete }) {
       )}
 
       <div className="quiz-nav">
-        {step > 0 && <button className="btn btn-ghost" onClick={back}>Back</button>}
+        <div>
+          {step > 0 && <button className="btn btn-ghost" onClick={back}>Back</button>}
+          {onCancel && <button className="btn btn-ghost" onClick={onCancel}>Cancel</button>}
+        </div>
         <button className="btn btn-primary" onClick={advance} disabled={!canAdvance}>
           {step === STEPS.length - 1 ? 'Finish' : 'Next'}
         </button>

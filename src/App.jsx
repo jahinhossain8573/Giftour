@@ -202,10 +202,7 @@ export default function App() {
           <p className="tagline">Travel planning, tuned to you.</p>
         </header>
         <main className="container">
-          <OnboardingQuiz onComplete={onComplete} />
-          {state.profile && (
-            <button className="btn btn-ghost" onClick={() => setQuizOpen(false)}>Cancel</button>
-          )}
+          <OnboardingQuiz onComplete={onComplete} onCancel={state.profile ? () => setQuizOpen(false) : undefined} />
         </main>
       </div>
     )
