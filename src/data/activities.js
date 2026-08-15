@@ -2,10 +2,25 @@
 // Crowd is on a 0-5 scale per hour-of-day, indexed 0..23.
 
 // How long each visit type typically takes (in hours).
+// These are base estimates — Google Places data refines them further.
 export const VISIT_HOURS = {
   light: 1,
   moderate: 2.5,
-  intense: 5,
+  intense: 6,
+}
+
+// Refined duration ranges by category for more granular estimates.
+export const CATEGORY_HOURS = {
+  // Theme parks and major attractions take a full day
+  event: { light: 1.5, moderate: 3, intense: 8 },
+  // Culture varies widely
+  culture: { light: 1, moderate: 2.5, intense: 4 },
+  // Outdoors depends on activity
+  outdoors: { light: 1, moderate: 2, intense: 4 },
+  // Food is usually quick
+  food: { light: 1, moderate: 1.5, intense: 2.5 },
+  // Rest activities
+  rest: { light: 1, moderate: 2, intense: 3 },
 }
 
 // Filler activities for itinerary day-structuring (transit, meals, prep).
@@ -60,6 +75,40 @@ export const FILLER_ACTIVITIES = [
     description: 'Morning meal to start the day.',
     crowdByHour: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     visitType: 'light',
+  },
+]
+
+// Extra interest activities that users can add to their day (shopping, spa, etc.)
+export const EXTRA_INTERESTS = [
+  {
+    id: 'shopping-mall',
+    name: 'Shopping Trip',
+    category: 'event',
+    location: 'Shopping District',
+    sensory: { noise: 3, crowds: 3, light: 3, unpredictability: 2 },
+    description: 'A relaxed shopping trip — browse stores, hunt for souvenirs, or explore local markets.',
+    crowdByHour: [0,0,0,0,0,0,0,0,1,2,3,4,4,4,4,4,4,4,3,2,1,0,0,0],
+    visitType: 'light',
+  },
+  {
+    id: 'spa-afternoon',
+    name: 'Spa / Wellness Afternoon',
+    category: 'rest',
+    location: 'Wellness Centre',
+    sensory: { noise: 1, crowds: 1, light: 1, unpredictability: 1 },
+    description: 'Massages, sauna, or quiet relaxation time. Bookable slots available.',
+    crowdByHour: [0,0,0,0,0,0,0,0,1,2,3,3,3,3,3,3,3,2,2,1,0,0,0,0],
+    visitType: 'moderate',
+  },
+  {
+    id: 'local-market',
+    name: 'Local Market / Bazaar',
+    category: 'food',
+    location: 'Market Square',
+    sensory: { noise: 3, crowds: 4, light: 2, unpredictability: 3 },
+    description: 'Browse a bustling local market with fresh produce, handicrafts, and street food.',
+    crowdByHour: [0,0,0,0,0,0,0,1,2,3,4,5,5,4,3,3,4,4,3,2,1,0,0,0],
+    visitType: 'moderate',
   },
 ]
 
@@ -185,6 +234,52 @@ export const ACTIVITIES = [
     visitType: 'light',
   },
 ]
+
+/**
+ * Get a realistic visit duration estimate for an activity.
+ * Uses Google Places data (rating, review count, category) when available
+ * to refine the base visit type estimate.
+ *
+ * @param {object} activity — activity object with visitType, category, rating, userRatingCount
+ * @returns {number} estimated hours
+ */
+export function estimateHours(activity) {
+  if (!activity) return 1
+
+  const baseType = activity.visitType || 'moderate'
+  const categoryHours = CATEGORY_HOURS[activity.category] || CATEGORY_HOURS.culture
+  let hours = categoryHours[baseType] || VISIT_HOURS[baseType] || 2.5
+
+  // Google Places refinement: popular places have queues, but most landmarks
+  // are still quick visits. Small bump only for extremely popular spots.
+  const rating = activity.rating || 0
+  const reviews = activity.userRatingCount || 0
+
+  if (reviews > 10000) hours += 0.5
+  else if (reviews > 5000) hours += 0.25
+
+  // Known all-day attractions by name or ID
+  const id = activity.id || ''
+  const name = (activity.name || '').toLowerCase()
+  if (/disney|universal|wizarding/i.test(id) || /disney|universal\s+(studios|orlando|hollywood)|wizarding world/i.test(name)) hours = 8
+  if (/everglades|great-ocean-road|rottnest|st-martins/i.test(id)) hours = 7
+
+  // Google Places type-based refinements
+  if (activity._source === 'google' && activity.types) {
+    const types = activity.types || []
+    if (types.includes('amusement_park') || types.includes('theme_park')) hours = Math.max(hours, 7)
+    if (types.includes('tourist_attraction') && !types.includes('museum') && !types.includes('historical_place') && !types.includes('church')) {
+      // Generic tourist attraction — keep as moderate unless name suggests otherwise
+    }
+  }
+  // Curated city museums known to be large
+  if (/louvre|british-museum|metropolitan/i.test(id)) hours = Math.max(hours, 3.5)
+
+  // Event-category places with very high review counts are likely theme parks
+  if (activity.category === 'event' && reviews > 2000) hours = Math.max(hours, 6)
+
+  return Math.round(hours * 10) / 10
+}
 
 export function getActivityById(id, pool) {
   // If a pool is supplied (e.g. the city's landmarks merged with the generic

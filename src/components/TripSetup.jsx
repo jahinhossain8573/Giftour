@@ -5,16 +5,8 @@
 
 import { useState, useEffect } from 'react'
 
-const DURATIONS = [
-  { value: 'short', label: 'A few hours', help: '~2–3 hours, light day' },
-  { value: 'half', label: 'Half day', help: '~4–5 hours, 1–2 main things' },
-  { value: 'full', label: 'Full day', help: 'Most of the day out' },
-  { value: 'overnight', label: 'Overnight', help: 'Includes evening + next morning' },
-]
-
 export default function TripSetup({ date, initial, onSave, onCancel }) {
   const [destination, setDestination] = useState(initial?.destination || '')
-  const [duration, setDuration] = useState(initial?.duration || 'full')
   const [notes, setNotes] = useState(initial?.notes || '')
 
   // Focus the first field when the form appears.
@@ -42,24 +34,7 @@ export default function TripSetup({ date, initial, onSave, onCancel }) {
         />
       </label>
 
-      <fieldset className="trip-duration">
-        <legend>How long will you be out?</legend>
-        <div className="trip-duration-grid">
-          {DURATIONS.map(opt => (
-            <button
-              type="button"
-              key={opt.value}
-              className={`trip-duration-btn ${duration === opt.value ? 'selected' : ''}`}
-              onClick={() => setDuration(opt.value)}
-              aria-pressed={duration === opt.value}
-            >
-              <strong>{opt.label}</strong>
-              <span className="muted small">{opt.help}</span>
-            </button>
-          ))}
-        </div>
-      </fieldset>
-
+      
       <label className="trip-label" htmlFor="trip-notes">
         Anything else? <span className="muted small">(optional)</span>
         <textarea
@@ -79,7 +54,7 @@ export default function TripSetup({ date, initial, onSave, onCancel }) {
         <button
           type="button"
           className="btn btn-primary"
-          onClick={() => onSave({ destination: destination.trim(), duration, notes: notes.trim() })}
+          onClick={() => onSave({ destination: destination.trim(), duration: 'full', notes: notes.trim() })}
           disabled={!canSave}
         >
           {initial ? 'Save changes' : 'Continue'}

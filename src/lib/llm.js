@@ -5,10 +5,17 @@
 //   - expect a JSON itinerary back
 // For the MVP, we run deterministic rules that mirror the prompt's intent.
 
-import { ACTIVITIES, getActivityById, VISIT_HOURS } from '../data/activities.js'
+import { ACTIVITIES, getActivityById, VISIT_HOURS, estimateHours } from '../data/activities.js'
 import { activityLoad, isRest, dayLoad, capForProfile } from './sensory.js'
 import { suitability, crowdAt } from './crowd.js'
 import { climateCategory } from './climate.js'
+
+// Recompute visit type from actual estimated hours so grouping matches reality.
+function typeFromHours(hours) {
+  if (hours > 4) return 'intense'
+  if (hours >= 2) return 'moderate'
+  return 'light'
+}
 
 const SYSTEM_PROMPT = `You are an itinerary assistant for autistic travellers. You must:
 1. Order items to minimise sensory fatigue: heaviest items mid-morning, never back-to-back.
@@ -534,6 +541,9 @@ export async function rankCandidates({ profile, preferences = {}, places, trip, 
     .filter(a => a.id && a.name)
     .map(a => ({
       activityId: a.id,
+      visitType: typeFromHours(estimateHours(a)),
+      estimatedHours: estimateHours(a),
+      estimatedLoad: activityLoad(a, estimateHours(a)),
       score: suitability(a, profile)
         + (isLandmark(a) ? tolerance * 8 : 0)
         + (isIndoor(a) ? climateIndoorBonus : (isOutdoor(a) ? climateOutdoorBonus : 0))
@@ -543,17 +553,33 @@ export async function rankCandidates({ profile, preferences = {}, places, trip, 
     .filter(x => x.score > 10)
     .sort((a, b) => b.score - a.score)
 
-  // Mix in diversity: take top-scoring items but ensure category variety.
+  // Ensure diversity of visit types: guarantee at least a few of each.
   const seen = new Set()
-  const result = []
+  const byType = { intense: [], moderate: [], light: [] }
   for (const item of ranked) {
-    if (result.length >= count) break
-    if (seen.has(item.activityId)) continue
-    seen.add(item.activityId)
-    result.push(item)
+    const vt = item.visitType || 'moderate'
+    if (byType[vt] && byType[vt].length < 4) byType[vt].push(item)
+  }
+  // Slot in the guaranteed picks (intense first so they don't get cut)
+  const finalResult = []
+  for (const type of ['intense', 'moderate', 'light']) {
+    for (const item of byType[type]) {
+      if (!seen.has(item.activityId)) {
+        seen.add(item.activityId)
+        finalResult.push(item)
+      }
+    }
+  }
+  // Fill remaining slots with whatever else scored well
+  for (const item of ranked) {
+    if (finalResult.length >= count) break
+    if (!seen.has(item.activityId)) {
+      seen.add(item.activityId)
+      finalResult.push(item)
+    }
   }
 
-  return result
+  return finalResult
 }
 
 /**
@@ -637,10 +663,9 @@ function schedule(item, startHour, hours, reasoning) {
   }
 }
 
-/** Get the default hours for an activity based on its visitType. */
+/** Get the default hours for an activity based on its visitType and Google data. */
 function visitHours(activity) {
-  if (!activity || !activity.visitType) return 1.5
-  return VISIT_HOURS[activity.visitType] || 1.5
+  return estimateHours(activity)
 }
 
 /**
@@ -663,28 +688,41 @@ function fillDayGaps(ordered, startHour, endHour, profile) {
     cursor += 0.5
   }
 
-  // 2. Lay out activities with transit between each
+  // 2. Lay out activities with transit and rest blocks between
+  let activitiesSinceRest = 0
   for (let i = 0; i < ordered.length; i++) {
     const slot = ordered[i]
+    const actHours = slot.hours || 1
 
-    // Transit to this activity
-    if (i === 0) {
-      // First activity: simple transit from current location
-      result.push(schedule({ activityId: 'travel-transit', hours: 0.5 }, cursor, 0.5, 'travel'))
+    // Hard cap: don't start anything that would end after endHour (10 PM)
+    if (cursor + actHours > endHour) break
+
+    // Insert a rest block after every 2 activities (if scheduled breaks)
+    if (needsScheduledBreaks && activitiesSinceRest >= 2 && cursor + 1.5 <= endHour) {
+      result.push(schedule({ activityId: 'getting-ready', hours: 0.5 }, cursor, 0.5, 'rest / recovery break'))
       cursor += 0.5
-    } else {
-      // Subsequent activities: transit + reset from previous
-      result.push(schedule({ activityId: 'travel-transit', hours: 0.5 }, cursor, 0.5, 'travel'))
-      cursor += 0.5
+      activitiesSinceRest = 0
     }
 
-    // The activity itself (use its hours but schedule it at current cursor)
-    const actHours = slot.hours || 1
+    // Short transit (15 min) before each activity
+    if (cursor + 0.25 + actHours <= endHour) {
+      result.push(schedule({ activityId: 'travel-transit', hours: 0.25 }, cursor, 0.25, 'travel'))
+      cursor += 0.25
+    }
+
+    // The activity itself
     result.push(schedule(
       { activityId: slot.activityId, hours: actHours },
       cursor, actHours, slot.reasoning || ''
     ))
     cursor += actHours
+    activitiesSinceRest++
+
+    // Short recovery after intense activities (4+ hours)
+    if (needsScheduledBreaks && actHours >= 4 && cursor + 0.5 <= endHour) {
+      result.push(schedule({ activityId: 'getting-ready', hours: 0.5 }, cursor, 0.5, 'rest after intense activity'))
+      cursor += 0.5
+    }
   }
 
   // 3. Lunch around noon

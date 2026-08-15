@@ -314,6 +314,24 @@ export function toActivityShape(place, wikiImages) {
   const description = buildDescription(place, category)
   const photoUrl = buildPhotoUrl(place, wikiImages)
 
+  // Infer visitType from Google Places data
+  const types = place.types || []
+  const primaryType = place.primaryType || ''
+  const pName = (place.displayName?.text || '').toLowerCase()
+  let visitType = 'moderate'
+
+  // Theme parks and major attractions by name (most reliable since Places API types are generic)
+  if (/disney|universal|wizarding world|seaworld|busch gardens|six flags/i.test(pName) ||
+      primaryType === 'theme_park' || primaryType === 'amusement_park' ||
+      types.includes('amusement_park') || types.includes('theme_park')) {
+    visitType = 'intense'
+  } else if (primaryType === 'cafe' || primaryType === 'bakery' ||
+             primaryType === 'library' || primaryType === 'park' ||
+             types.includes('cafe') || types.includes('bakery') ||
+             types.includes('library')) {
+    visitType = 'light'
+  }
+
   return {
     id: `gmaps-${place.id}`,
     name: place.displayName?.text || 'Unknown Place',
@@ -328,6 +346,8 @@ export function toActivityShape(place, wikiImages) {
     priceLevel: place.priceLevel ?? 1,
     website: place.websiteUri || null,
     _source: 'google',
+    types,
+    visitType,
   }
 }
 

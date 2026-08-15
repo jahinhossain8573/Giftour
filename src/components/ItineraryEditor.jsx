@@ -121,7 +121,7 @@ export default function ItineraryEditor({ date, items, profile, places, onChange
                   <div className="slot-title">
                     <strong>{activity.name}</strong>
                     {isRest(activity) && <span className="rest-tag">rest</span>}
-                    <span className={`load-pill load-${bucket(load)}`} title="Sensory load">load {load}</span>
+                    <span className={`load-pill load-${bucket(load)}`} title={`Sensory load: ${load}`}>{bucketLabel(load)}</span>
                   </div>
                   <div className="slot-meta muted small">
                     {activity.location} · {activity.category}
@@ -174,6 +174,10 @@ function bucket(load) {
   if (load < 6) return 'low'
   if (load < 12) return 'mid'
   return 'high'
+}
+function bucketLabel(load) {
+  const b = bucket(load)
+  return b === 'rest' ? 'rest' : b === 'low' ? 'low' : b === 'mid' ? 'medium' : 'high'
 }
 function clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)) }
 function formatDate(iso) {

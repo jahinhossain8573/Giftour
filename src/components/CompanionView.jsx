@@ -21,6 +21,10 @@ function bucket(load) {
   if (load < 12) return 'mid'
   return 'high'
 }
+function bucketLabel(load) {
+  const b = bucket(load)
+  return b === 'rest' ? 'rest' : b === 'low' ? 'low' : b === 'mid' ? 'medium' : 'high'
+}
 
 function durationLabel(d) {
   return ({ short: 'A few hours', half: 'Half day', full: 'Full day', overnight: 'Overnight' }[d] || d)
@@ -146,7 +150,7 @@ export default function CompanionView({ code, onDisconnect }) {
                         <div className="ai-timeline-header">
                           <strong>{activity.name}</strong>
                           {isRest(activity) && <span className="rest-tag">rest</span>}
-                          <span className={`load-pill load-${bucket(load)}`}>load {load}</span>
+                          <span className={`load-pill load-${bucket(load)}`} title={`Sensory load: ${load}`}>{bucketLabel(load)}</span>
                         </div>
                         <div className="ai-timeline-meta muted small">
                           {activity.location} · {activity.category}

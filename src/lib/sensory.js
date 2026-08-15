@@ -34,10 +34,10 @@ export function dayLoad(activities) {
 
 // Cap derived from profile. Lower tolerance = lower cap.
 export function capForProfile(profile) {
-  if (!profile) return 20
+  if (!profile) return 50
   const tolerance = profile.tolerance ?? 3
-  // tolerance 1 (very low) -> cap 10, tolerance 5 (high) -> cap 30
-  return 10 + (tolerance - 1) * 5
+  // tolerance 1 (very low) -> cap 30, tolerance 3 (medium) -> cap 50, tolerance 5 (high) -> cap 70
+  return 20 + tolerance * 10
 }
 
 export function budgetStatus(activities, profile) {
